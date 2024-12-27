@@ -1,10 +1,12 @@
 import { View, Text } from 'react-native'
 import React from 'react'
 
-export default function Notifications() {
+const NhiemVu = () => {
   return (
     <View>
-      <Text>Notifications</Text>
+      <Text>NhiemVu</Text>
     </View>
   )
 }
+
+export default NhiemVu

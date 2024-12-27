@@ -61,12 +61,15 @@ const styles = StyleSheet.create({
   },
   chart: {
     borderRadius: 8,
+    marginBottom:50
   },
   buttonContainer: {
     position: 'absolute',
     bottom: 20,
     width: '100%',
     alignItems: 'center',
+    backgroundColor: '#DDDDDD',
+    padding: 10,
   },
 });
 
