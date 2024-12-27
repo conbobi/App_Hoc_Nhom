@@ -1,5 +1,6 @@
 {
   "expo": {
+    "entryPoint": "./App.js",
     "name": "App_Hoc_Nhom",
     "slug": "App_Hoc_Nhom",
     "version": "1.0.0",
