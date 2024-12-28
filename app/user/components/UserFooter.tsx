@@ -1,15 +1,17 @@
 import React from 'react';
 import { View, TouchableOpacity, Text, StyleSheet } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { Ionicons } from '@expo/vector-icons';
 import { RootStackParamList } from '../screens/types/RootStackParamList';
 
+type UserFooterRouteProp = RouteProp<RootStackParamList, 'Home'>;
 type NavigationProp = StackNavigationProp<RootStackParamList>;
 const UserFooter = () => {
   // Xác định kiểu của navigation
   const navigation = useNavigation<NavigationProp>();
-
+const route = useRoute<UserFooterRouteProp>();
+const { userData } = route.params;
   return (
     <View style={styles.container}>
       <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('Home')}>
