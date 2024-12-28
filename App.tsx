@@ -8,16 +8,18 @@ import PhongHoc from './app/user/screens/PhongHoc';
 import Profile from './app/user/screens/Profile';
 import DangNhap from './app/user/screens/DangNhap';
 import DangKy from './app/user/screens/DangKy';
+import DanhSachPhong from './app/user/screens/DanhSachPhong';
 import { RootStackParamList } from './app/user/screens/types/RootStackParamList';
 const Stack = createStackNavigator<RootStackParamList>();
 
 export default function App() {
   return (
     <NavigationContainer>
-      <Stack.Navigator initialRouteName="Home">
+      <Stack.Navigator initialRouteName="DangKy">
         <Stack.Screen name="Home" component={Home} />
         <Stack.Screen name="NhiemVu" component={NhiemVu} />
         <Stack.Screen name="Notifications" component={Notifications} />
+        <Stack.Screen name="DanhSachPhong" component={DanhSachPhong} />
         <Stack.Screen name="PhongHoc" component={PhongHoc} />
         <Stack.Screen name="Profile" component={Profile} />
         <Stack.Screen name='DangNhap' component={DangNhap} />

@@ -36,7 +36,7 @@ export default function Profile() {
   const toggleSidebar = () => {
     setSidebarVisible(!isSidebarVisible);
   };
-
+const {userData}= route.params;
   return (
     <View style={{ flex: 1 }}>
       {/* Sidebar */}
@@ -69,24 +69,24 @@ export default function Profile() {
           {/* User Info Section */}
           <View style={styles.infoContainer}>
             <Text style={styles.label}>ID Người Dùng:</Text>
-            <TextInput style={styles.input} value="123456" editable={false} />
+            <TextInput style={styles.input} value={userData.id.toString()} editable={false} />
 
             <Text style={styles.label}>Họ và Tên:</Text>
-            <TextInput style={styles.input} value="Nguyễn Văn A" editable={false} />
+            <TextInput style={styles.input} value={userData.fullName} editable={false} />
 
             <Text style={styles.label}>Email:</Text>
-            <TextInput style={styles.input} value="example@gmail.com" editable={false} />
+            <TextInput style={styles.input} value={userData.email} editable={false} />
 
             <Text style={styles.label}>Mật Khẩu:</Text>
             <TextInput
               style={styles.input}
-              value="********"
+              value={userData.password}
               editable={false}
               secureTextEntry
             />
 
             <Text style={styles.label}>Vai Trò:</Text>
-            <TextInput style={styles.input} value="Sinh Viên" editable={false} />
+            <TextInput style={styles.input} value={userData.role} editable={false} />
 
             <Text style={styles.label}>Trạng Thái:</Text>
             <TextInput style={styles.input} value="Hoạt Động" editable={false} />

@@ -3,7 +3,7 @@ import { View, TouchableOpacity, Text, StyleSheet } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { Ionicons } from '@expo/vector-icons';
-import { RootStackParamList } from '../../../App'; // Import kiểu màn hình
+import { RootStackParamList } from '../screens/types/RootStackParamList';
 
 type NavigationProp = StackNavigationProp<RootStackParamList>;
 const UserFooter = () => {
@@ -27,14 +27,14 @@ const UserFooter = () => {
         <Text style={styles.label}>Thông Báo</Text>
       </TouchableOpacity>
 
-      <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('PhongHoc')}>
+      <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('DanhSachPhong')}>
         <Ionicons name="school" size={24} color="#000" />
         <Text style={styles.label}>Phòng Học</Text>
       </TouchableOpacity>
 
       <TouchableOpacity
   style={styles.button}
-  onPress={() => navigation.navigate('Profile', { userId: '123456' })} // Thay '123456' bằng giá trị userId thực tế
+  onPress={() => navigation.navigate('Profile')} // Thay '123456' bằng giá trị userId thực tế
 >
   <Ionicons name="person" size={24} color="#000" />
   <Text style={styles.label}>Hồ Sơ</Text>

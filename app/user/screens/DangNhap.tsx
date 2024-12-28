@@ -15,6 +15,7 @@ export default function DangNhap() {
   const { userData } = route.params ;
 
   const handleDangNhap = () => {
+    console.log(userData.email);
     if (email === userData?.email && password === userData?.password) {
       navigation.navigate('Profile', { userId: userData.id.toString(), userData });
     } else {

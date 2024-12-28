@@ -16,12 +16,13 @@ export default function DangKy() {
   const handleDangKy = () => {
     const userData = {
       id: idCounter++,
-      fullName:'',
-      email:'',
-      password:'',
-      role:'',
+      fullName:fullName,
+      email:email,
+      password:password,
+      role:role,
     };
     console.log('User DangKy:', userData);
+    console.log(userData.email);
     navigation.navigate('DangNhap', { userData });
   };
 
