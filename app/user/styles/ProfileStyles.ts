@@ -16,20 +16,21 @@ const styles = StyleSheet.create({
     elevation: 5, // Đổ bóng cho Android
   },
   container: {
-    flex: 1,
-    backgroundColor: '#f8f9fa',
     padding: 20,
+    flex: 1,
+    backgroundColor: '#f5f5f5',
   },
   avatarContainer: {
     alignItems: 'center',
     marginBottom: 20,
   },
   avatar: {
-    width: 120,
-    height: 120,
-    borderRadius: 60,
     borderWidth: 2,
     borderColor: '#6c757d',
+    width: 100,
+    height: 100,
+    borderRadius: 50,
+    backgroundColor: '#ccc',
   },
   infoContainer: {
     marginBottom: 20,
@@ -71,6 +72,51 @@ const styles = StyleSheet.create({
     backgroundColor: '#DDDDDD',
     padding: 10,
   },
+
+  scrollContainer: {
+    alignItems: 'center',
+    paddingVertical: 20,
+  },
+  
+  name: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    marginTop: 10,
+  },
+  details: {
+    fontSize: 14,
+    color: '#666',
+  },
+  buttonRow: {
+    flexDirection: 'row',
+    marginTop: 15,
+  },
+  editButton: {
+    backgroundColor: '#f06292',
+    paddingVertical: 8,
+    paddingHorizontal: 15,
+    borderRadius: 5,
+    marginHorizontal: 5,
+  },
+  changePasswordButton: {
+    backgroundColor: '#ba68c8',
+    paddingVertical: 8,
+    paddingHorizontal: 15,
+    borderRadius: 5,
+    marginHorizontal: 5,
+  },
+  signOutButton: {
+    backgroundColor: '#ff8a65',
+    paddingVertical: 8,
+    paddingHorizontal: 15,
+    borderRadius: 5,
+    marginHorizontal: 5,
+  },
+  buttonText: {
+    color: '#fff',
+    fontWeight: 'bold',
+    textAlign: 'center',
+  }
 });
 
 export default styles;
