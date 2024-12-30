@@ -39,7 +39,9 @@ export default function DanhSachPhong() {
 
   useEffect(() => {
     const fetchRooms = async () => {
-      const snapshot = await firebase.firestore().collection('rooms').get();
+      if (!userId) return;
+
+      const snapshot = await firebase.firestore().collection('rooms').where('membersId', 'array-contains', userId).get();
       const fetchedRooms = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })) as Room[];
       setRooms(fetchedRooms);
 
@@ -50,9 +52,7 @@ export default function DanhSachPhong() {
       }, -1);
       setNextRoomId(maxRoomId + 1);
     };
-    if (userId) {
-      fetchRooms();
-    }
+    fetchRooms();
   }, [userId]);
 
   const handleJoinRoom = async () => {
