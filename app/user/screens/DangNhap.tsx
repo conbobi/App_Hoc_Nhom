@@ -1,25 +1,55 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet } from 'react-native';
-import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
-import { RootStackParamList } from './types/RootStackParamList';
+import { View, Text, TextInput, TouchableOpacity, Alert } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
+import { RootStackParamList } from './types/RootStackParamList';
+import styles from '../styles/DangNhapStyles';
+import firebase from '../../../FirebaseConfig'; // Import firebase from FirebaseConfig.js
 
-type DangNhapScreenNavigationProp = StackNavigationProp<RootStackParamList,'DangNhap'>;
-type DangNhapRouteProp =RouteProp<RootStackParamList, 'DangNhap'>;
+type DangNhapScreenNavigationProp = StackNavigationProp<RootStackParamList, 'DangNhap'>;
 
 export default function DangNhap() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const navigation = useNavigation<DangNhapScreenNavigationProp>();
-  const route = useRoute<DangNhapRouteProp>();
-  const { userData } = route.params ;
 
-  const handleDangNhap = () => {
-    console.log(userData.email);
-    if (email === userData?.email && password === userData?.password) {
-      navigation.navigate('Profile', { userId: userData.id.toString(), userData });
-    } else {
-      alert('Thông tin đăng nhập không chính xác.');
+  const handleDangNhap = async () => {
+    if (!email || !password) {
+      Alert.alert('Lỗi', 'Vui lòng nhập email và mật khẩu.');
+      return;
+    }
+
+    try {
+      // Đăng nhập với Firebase Authentication
+      const userCredential = await firebase.auth().signInWithEmailAndPassword(email, password);
+      const user = userCredential.user;
+
+      // Lấy thông tin người dùng từ Firestore
+      const userDoc = await firebase.firestore().collection('users').doc(user?.uid).get();
+      const userData = userDoc.data();
+
+      if (userData) {
+        Alert.alert('Thành công', 'Đăng nhập thành công!');
+        if (user?.uid) {
+          navigation.navigate('Profile', { 
+            userId: user.uid,
+            userData: {
+              id: Number(user.uid),
+              fullName: userData.fullName,
+              email: userData.email,
+              password: userData.password,
+              role: userData.role
+            }
+          });
+        } else {
+          Alert.alert('Lỗi', 'Không tìm thấy ID người dùng.');
+        }
+      } else {
+        Alert.alert('Lỗi', 'Không tìm thấy thông tin người dùng.');
+      }
+    } catch (error) {
+      console.error(error);
+      Alert.alert('Lỗi', (error as any).message || 'Đăng nhập thất bại!');
     }
   };
 
@@ -27,30 +57,21 @@ export default function DangNhap() {
     <View style={styles.container}>
       <Text style={styles.title}>Đăng Nhập</Text>
       <TextInput
+        style={styles.input}
         placeholder="Email"
         value={email}
         onChangeText={setEmail}
-        style={styles.input}
-        keyboardType="email-address"
       />
       <TextInput
-        placeholder="Mật Khẩu"
+        style={styles.input}
+        placeholder="Mật khẩu"
         value={password}
         onChangeText={setPassword}
-        style={styles.input}
         secureTextEntry
       />
-      <TouchableOpacity onPress={handleDangNhap} style={styles.button}>
+      <TouchableOpacity style={styles.button} onPress={handleDangNhap}>
         <Text style={styles.buttonText}>Đăng Nhập</Text>
       </TouchableOpacity>
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: { flex: 1, justifyContent: 'center', padding: 20 },
-  title: { fontSize: 24, fontWeight: 'bold', textAlign: 'center', marginBottom: 20 },
-  input: { borderWidth: 1, borderColor: '#ccc', padding: 10, marginBottom: 15, borderRadius: 5 },
-  button: { backgroundColor: '#9932CC', padding: 15, borderRadius: 5 },
-  buttonText: { color: '#fff', textAlign: 'center', fontSize: 16 },
-});

@@ -1,5 +1,5 @@
 import { RouteProp } from '@react-navigation/native';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -7,45 +7,74 @@ import {
   TouchableOpacity,
   FlatList,
   StyleSheet,
+  Alert,
 } from 'react-native';
 import { RootStackParamList } from './types/RootStackParamList';
 import Message from './types/Message';
-type PhongHocProps={
+import firebase from 'firebase/compat/app';
+import 'firebase/compat/auth';
+import 'firebase/compat/firestore';
+
+type PhongHocProps = {
   route: RouteProp<RootStackParamList, 'PhongHoc'>;
 };
-export default function PhongHoc({ route }:PhongHocProps) {
-  const { roomId, roomName } = route.params || {};
+
+export default function PhongHoc({ route }: PhongHocProps) {
+  const { roomId, roomName, ownerId } = route.params || {};
+  const currentUserId = firebase.auth().currentUser?.uid || ''; // ID người dùng hiện tại
+  const isOwner = currentUserId === ownerId;
+
   const [messages, setMessages] = useState<Message[]>([]);
   const [message, setMessage] = useState('');
 
-  const handleSend = () => {
+  useEffect(() => {
+    const fetchMessages = async () => {
+      const snapshot = await firebase.firestore().collection('rooms').doc(roomId).collection('messages').orderBy('timestamp').get();
+      const fetchedMessages = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })) as Message[];
+      setMessages(fetchedMessages);
+    };
+    fetchMessages();
+  }, [roomId]);
+
+  const handleSend = async () => {
     if (message.trim() === '') return;
-    setMessages((prev) => [...prev, { id: Date.now().toString(), content: message }]);
+
+    const newMessage: Message = {
+      id: Date.now().toString(),
+      content: message,
+      senderId: currentUserId,
+      timestamp: new Date(),
+    };
+
+    await firebase.firestore().collection('rooms').doc(roomId).collection('messages').add(newMessage);
+    setMessages((prev) => [...prev, newMessage]);
     setMessage('');
   };
 
-  const renderMessageItem = ({ item }:{item:Message}) => (
+  const handleDeleteMessage = async (messageId: string) => {
+    if (!isOwner) {
+      Alert.alert('Lỗi', 'Chỉ trưởng phòng có quyền xóa tin nhắn!');
+      return;
+    }
+
+    await firebase.firestore().collection('rooms').doc(roomId).collection('messages').doc(messageId).delete();
+    setMessages((prev) => prev.filter((msg) => msg.id !== messageId));
+  };
+
+  const renderMessageItem = ({ item }: { item: Message }) => (
     <View style={styles.messageItem}>
       <Text style={styles.messageText}>{item.content}</Text>
+      {isOwner && (
+        <TouchableOpacity onPress={() => handleDeleteMessage(item.id)}>
+          <Text style={styles.sendButton}>Xóa</Text>
+        </TouchableOpacity>
+      )}
     </View>
   );
 
   return (
     <View style={styles.container}>
-      <View style={styles.header}>
-        <Text style={styles.roomTitle}>{roomName}</Text>
-        <View style={styles.iconContainer}>
-          <TouchableOpacity>
-            <Text style={styles.icon}>📹</Text>
-          </TouchableOpacity>
-          <TouchableOpacity>
-            <Text style={styles.icon}>📄</Text>
-          </TouchableOpacity>
-          <TouchableOpacity>
-            <Text style={styles.icon}>📊</Text>
-          </TouchableOpacity>
-        </View>
-      </View>
+      <Text style={styles.roomTitle}>{roomName}</Text>
       <FlatList
         data={messages}
         keyExtractor={(item) => item.id}

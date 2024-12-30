@@ -9,7 +9,9 @@ import Profile from './app/user/screens/Profile';
 import DangNhap from './app/user/screens/DangNhap';
 import DangKy from './app/user/screens/DangKy';
 import DanhSachPhong from './app/user/screens/DanhSachPhong';
+import UserFooter from './app/user/components/UserFooter';
 import { RootStackParamList } from './app/user/screens/types/RootStackParamList';
+
 const Stack = createStackNavigator<RootStackParamList>();
 
 export default function App() {
@@ -22,6 +24,7 @@ export default function App() {
         <Stack.Screen name="DanhSachPhong" component={DanhSachPhong} />
         <Stack.Screen name="PhongHoc" component={PhongHoc} />
         <Stack.Screen name="Profile" component={Profile} />
+        <Stack.Screen name="UserFooter" component={UserFooter} />
         <Stack.Screen name='DangNhap' component={DangNhap} />
         <Stack.Screen name='DangKy' component={DangKy}/>
       </Stack.Navigator>

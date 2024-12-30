@@ -1,29 +1,61 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, Alert } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
-import { RootStackParamList } from './types/RootStackParamList';
 import { StackNavigationProp } from '@react-navigation/stack';
+import { RootStackParamList } from './types/RootStackParamList';
+import styles from '../styles/DangKyStyles';
+import firebase from 'firebase/compat/app';
+import 'firebase/compat/auth';
+import 'firebase/compat/firestore';
 
-let idCounter = 1; // Biến toàn cục để sinh ID tự động.
-type DangKyScreenNavigationProp= StackNavigationProp<RootStackParamList,'DangKy'>;
+const firebaseConfig = {
+  apiKey: "AIzaSyD-ye8v7QJmC3kLAIQLpGNNP48CUDZQQFM",
+  authDomain: "app-hoc-nhom.firebaseapp.com",
+  projectId: "app-hoc-nhom",
+  storageBucket: "app-hoc-nhom.appspot.com",
+  messagingSenderId: "45281545059",
+  appId: "1:45281545059:web:edace200e76939e062a156",
+  measurementId: "G-8XECQG39J8",
+};
+
+if (firebase.apps.length === 0) {
+  firebase.initializeApp(firebaseConfig);
+}
+
+type DangKyScreenNavigationProp = StackNavigationProp<RootStackParamList, 'DangKy'>;
+
 export default function DangKy() {
   const [fullName, setFullName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [role, setRole] = useState('');
   const navigation = useNavigation<DangKyScreenNavigationProp>();
+  const handelDangNhap = async () => {
+    navigation.navigate('DangNhap', { userData: { fullName, email, role } });
+}
+  const handleDangKy = async () => {
+    if (!fullName || !email || !password || !role) {
+      Alert.alert('Lỗi', 'Vui lòng nhập đầy đủ thông tin.');
+      return;
+    }
 
-  const handleDangKy = () => {
-    const userData = {
-      id: idCounter++,
-      fullName:fullName,
-      email:email,
-      password:password,
-      role:role,
-    };
-    console.log('User DangKy:', userData);
-    console.log(userData.email);
-    navigation.navigate('DangNhap', { userData });
+    try {
+      // Đăng ký tài khoản với Firebase Authentication
+      const userCredential = await firebase.auth().createUserWithEmailAndPassword(email, password);
+      const user = userCredential.user;
+
+      // Lưu thông tin bổ sung vào Firestore
+      await firebase.firestore().collection('users').doc(user?.uid).set({
+        fullName,
+        email,
+        role,
+      });
+
+      Alert.alert('Thành công', 'Đăng ký thành công!');
+      navigation.navigate('DangNhap', { userData: { fullName, email, role } }); // Chuyển đến màn hình đăng nhập
+    } catch (error) {
+      Alert.alert('Lỗi', (error as any).message || 'Đăng ký thất bại!');
+    }
   };
 
   return (
@@ -58,14 +90,10 @@ export default function DangKy() {
       <TouchableOpacity onPress={handleDangKy} style={styles.button}>
         <Text style={styles.buttonText}>Đăng Ký</Text>
       </TouchableOpacity>
+      <Text style={{alignContent:"center", textAlign:"center"}}  > or</Text>
+      <TouchableOpacity onPress={handelDangNhap} style={styles.button}>
+        <Text style={styles.buttonText}>Đăng nhập</Text>
+      </TouchableOpacity>
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: { flex: 1, justifyContent: 'center', padding: 20 },
-  title: { fontSize: 24, fontWeight: 'bold', textAlign: 'center', marginBottom: 20 },
-  input: { borderWidth: 1, borderColor: '#ccc', padding: 10, marginBottom: 15, borderRadius: 5 },
-  button: { backgroundColor: '#9932CC', padding: 15, borderRadius: 5 },
-  buttonText: { color: '#fff', textAlign: 'center', fontSize: 16 },
-});

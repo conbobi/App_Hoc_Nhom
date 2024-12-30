@@ -5,13 +5,15 @@ import { StackNavigationProp } from '@react-navigation/stack';
 import { Ionicons } from '@expo/vector-icons';
 import { RootStackParamList } from '../screens/types/RootStackParamList';
 
-type UserFooterRouteProp = RouteProp<RootStackParamList, 'Home'>;
+type UserFooterRouteProp = RouteProp<RootStackParamList, 'UserFooter'>;
 type NavigationProp = StackNavigationProp<RootStackParamList>;
+
+
 const UserFooter = () => {
   // Xác định kiểu của navigation
   const navigation = useNavigation<NavigationProp>();
-const route = useRoute<UserFooterRouteProp>();
-const { userData } = route.params;
+  const route = useRoute<UserFooterRouteProp>();
+const { userData } = route.params || {};
   return (
     <View style={styles.container}>
       <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('Home')}>
@@ -29,14 +31,14 @@ const { userData } = route.params;
         <Text style={styles.label}>Thông Báo</Text>
       </TouchableOpacity>
 
-      <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('DanhSachPhong')}>
+      <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('DanhSachPhong', { userData })}>
         <Ionicons name="school" size={24} color="#000" />
         <Text style={styles.label}>Phòng Học</Text>
       </TouchableOpacity>
 
       <TouchableOpacity
   style={styles.button}
-  onPress={() => navigation.navigate('Profile')} // Thay '123456' bằng giá trị userId thực tế
+  onPress={() => navigation.navigate('Profile',{ userId: userData.id.toString(), userData })} // Thay '123456' bằng giá trị userId thực tế
 >
   <Ionicons name="person" size={24} color="#000" />
   <Text style={styles.label}>Hồ Sơ</Text>

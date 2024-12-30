@@ -1,6 +1,11 @@
+import Message from "./Message";
 interface Room {
     id: string;
     name: string;
-    messages: number;
+    ownerId: string;
+    membersId: string[];
+    date: Date;
+    messages: Message[];
+    state: string;
   }
   export default Room;

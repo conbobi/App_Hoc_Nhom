@@ -1,10 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
   FlatList,
   TouchableOpacity,
-  StyleSheet,
   TextInput,
   Alert,
 } from 'react-native';
@@ -12,41 +11,92 @@ import { useNavigation } from '@react-navigation/native';
 import { RootStackParamList } from './types/RootStackParamList';
 import { StackNavigationProp } from '@react-navigation/stack';
 import Room from './types/Room';
+import message from './types/Message';
+import styles from '../styles/DanhSachPhongStyles';
+import firebase from 'firebase/compat/app';
+import 'firebase/compat/auth';
+import 'firebase/compat/firestore';
 
-type DanhSachPhongScreenNavigationProp = StackNavigationProp<RootStackParamList,'DanhSachPhong'>;
+type DanhSachPhongScreenNavigationProp = StackNavigationProp<RootStackParamList, 'DanhSachPhong'>;
+
 export default function DanhSachPhong() {
   const navigation = useNavigation<DanhSachPhongScreenNavigationProp>();
-  const [rooms, setRooms] = useState([
-    { id: '1', name: 'Nhóm Toán', messages: 3 },
-    { id: '2', name: 'Nhóm Lý', messages: 1 },
-    { id: '3', name: 'Nhóm Hóa', messages: 0 },
-  ]);
+  const [rooms, setRooms] = useState<Room[]>([]); // Danh sách phòng
   const [roomId, setRoomId] = useState('');
+  const [roomName, setRoomName] = useState('');
+  const [userId, setUserId] = useState('');
+  const [nextRoomId, setNextRoomId] = useState();
 
-  const handleJoinRoom = () => {
+  useEffect(() => {
+    const fetchUserId = async () => {
+      const user = firebase.auth().currentUser;
+      if (user) {
+        setUserId(user.uid);
+      }
+    };
+    fetchUserId();
+  }, []);
+
+  useEffect(() => {
+    const fetchRooms = async () => {
+      const snapshot = await firebase.firestore().collection('rooms').get();
+      const fetchedRooms = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })) as Room[];
+      setRooms(fetchedRooms);
+    };
+    fetchRooms();
+  }, []);
+
+  const handleJoinRoom = async () => {
     if (roomId.trim() === '') {
       Alert.alert('Lỗi', 'Vui lòng nhập mã ID phòng!');
       return;
     }
+
+    const roomRef = firebase.firestore().collection('rooms').doc(roomId);
+    const roomDoc = await roomRef.get();
+
+    if (!roomDoc.exists) {
+      Alert.alert('Lỗi', 'Phòng không tồn tại!');
+      return;
+    }
+
+    await roomRef.update({
+      membersId: firebase.firestore.FieldValue.arrayUnion(userId),
+    });
+
     Alert.alert('Thành công', `Đã tham gia phòng với mã ID: ${roomId}`);
     setRoomId('');
   };
 
-  const handleCreateRoom = () => {
-    Alert.alert('Tạo phòng', 'Chức năng tạo phòng chưa hoàn thiện.');
+  const handleCreateRoom = async () => {
+    if (roomName.trim() === '') {
+      Alert.alert('Lỗi', 'Vui lòng nhập tên phòng!');
+      return;
+    }
+
+    const newRoom: Room = {
+      id: nextRoomId.toString(),
+      name: roomName,
+      ownerId: userId,
+      membersId: [userId],
+      date: new Date(),
+      messages: [] as message[],
+      state: "string",
+    };
+
+    const roomRef = await firebase.firestore().collection('rooms').add(newRoom);
+    setRooms((prevRooms) => [...prevRooms, { ...newRoom, id: roomRef.id }]);
+    setNextRoomId(nextRoomId + 1);
+    Alert.alert('Thành công', `Đã tạo phòng: ${roomName}`);
+    setRoomName('');
   };
 
-  const renderRoomItem = ({ item }:{item:Room}) => (
+  const renderRoomItem = ({ item }: { item: Room }) => (
     <TouchableOpacity
       style={styles.roomItem}
-      onPress={() => navigation.navigate('PhongHoc', { roomId: item.id, roomName: item.name })}
+      onPress={() => navigation.navigate('PhongHoc', { roomId: item.id, roomName: item.name, ownerId: item.ownerId })}
     >
       <Text style={styles.roomName}>{item.name}</Text>
-      {item.messages > 0 && (
-        <View style={styles.messageBadge}>
-          <Text style={styles.messageBadgeText}>{item.messages}</Text>
-        </View>
-      )}
     </TouchableOpacity>
   );
 
@@ -60,6 +110,12 @@ export default function DanhSachPhong() {
         style={styles.roomList}
       />
       <View style={styles.actionContainer}>
+        <TextInput
+          style={styles.input}
+          placeholder="Tên phòng mới"
+          value={roomName}
+          onChangeText={setRoomName}
+        />
         <TouchableOpacity style={styles.button} onPress={handleCreateRoom}>
           <Text style={styles.buttonText}>Tạo phòng</Text>
         </TouchableOpacity>
@@ -76,41 +132,3 @@ export default function DanhSachPhong() {
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: { flex: 1, padding: 20, backgroundColor: '#fff' },
-  header: { fontSize: 24, fontWeight: 'bold', marginBottom: 20 },
-  roomList: { marginBottom: 20 },
-  roomItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    padding: 15,
-    backgroundColor: '#f5f5f5',
-    borderRadius: 10,
-    marginBottom: 10,
-  },
-  roomName: { fontSize: 18 },
-  messageBadge: {
-    backgroundColor: 'red',
-    borderRadius: 20,
-    paddingHorizontal: 10,
-    paddingVertical: 5,
-  },
-  messageBadgeText: { color: '#fff', fontWeight: 'bold' },
-  actionContainer: { flexDirection: 'row', alignItems: 'center' },
-  button: {
-    backgroundColor: '#007bff',
-    padding: 10,
-    borderRadius: 10,
-    marginLeft: 10,
-  },
-  buttonText: { color: '#fff' },
-  input: {
-    flex: 1,
-    borderWidth: 1,
-    borderColor: '#ccc',
-    borderRadius: 10,
-    paddingHorizontal: 10,
-  },
-});
