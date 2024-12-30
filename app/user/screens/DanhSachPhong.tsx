@@ -25,7 +25,7 @@ export default function DanhSachPhong() {
   const [roomId, setRoomId] = useState('');
   const [roomName, setRoomName] = useState('');
   const [userId, setUserId] = useState('');
-  const [nextRoomId, setNextRoomId] = useState();
+  const [nextRoomId, setNextRoomId] = useState(0);
 
   useEffect(() => {
     const fetchUserId = async () => {
@@ -42,9 +42,18 @@ export default function DanhSachPhong() {
       const snapshot = await firebase.firestore().collection('rooms').get();
       const fetchedRooms = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })) as Room[];
       setRooms(fetchedRooms);
+
+      // Determine the next room ID
+      const maxRoomId = fetchedRooms.reduce((maxId, room) => {
+        const roomId = parseInt(room.id, 10);
+        return roomId > maxId ? roomId : maxId;
+      }, -1);
+      setNextRoomId(maxRoomId + 1);
     };
-    fetchRooms();
-  }, []);
+    if (userId) {
+      fetchRooms();
+    }
+  }, [userId]);
 
   const handleJoinRoom = async () => {
     if (roomId.trim() === '') {
@@ -60,12 +69,22 @@ export default function DanhSachPhong() {
       return;
     }
 
-    await roomRef.update({
-      membersId: firebase.firestore.FieldValue.arrayUnion(userId),
-    });
+    try {
+      await roomRef.update({
+        membersId: firebase.firestore.FieldValue.arrayUnion(userId),
+      });
 
-    Alert.alert('Thành công', `Đã tham gia phòng với mã ID: ${roomId}`);
-    setRoomId('');
+      Alert.alert('Thành công', `Đã tham gia phòng với mã ID: ${roomId}`);
+      setRoomId('');
+
+      // Fetch the updated list of rooms
+      const snapshot = await firebase.firestore().collection('rooms').where('membersId', 'array-contains', userId).get();
+      const fetchedRooms = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })) as Room[];
+      setRooms(fetchedRooms);
+    } catch (error) {
+      console.error('Error joining room:', error);
+      Alert.alert('Lỗi', 'Không thể tham gia phòng. Vui lòng thử lại.');
+    }
   };
 
   const handleCreateRoom = async () => {
@@ -84,11 +103,16 @@ export default function DanhSachPhong() {
       state: "string",
     };
 
-    const roomRef = await firebase.firestore().collection('rooms').add(newRoom);
-    setRooms((prevRooms) => [...prevRooms, { ...newRoom, id: roomRef.id }]);
-    setNextRoomId(nextRoomId + 1);
-    Alert.alert('Thành công', `Đã tạo phòng: ${roomName}`);
-    setRoomName('');
+    try {
+      const roomRef = await firebase.firestore().collection('rooms').doc(newRoom.id).set(newRoom);
+      setRooms((prevRooms) => [...prevRooms, newRoom]);
+      setNextRoomId(nextRoomId + 1);
+      Alert.alert('Thành công', `Đã tạo phòng: ${roomName}`);
+      setRoomName('');
+    } catch (error) {
+      console.error('Error creating room:', error);
+      Alert.alert('Lỗi', 'Không thể tạo phòng. Vui lòng thử lại.');
+    }
   };
 
   const renderRoomItem = ({ item }: { item: Room }) => (
