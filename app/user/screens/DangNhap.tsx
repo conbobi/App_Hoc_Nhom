@@ -38,7 +38,8 @@ export default function DangNhap() {
               fullName: userData.fullName,
               email: userData.email,
               password: userData.password,
-              role: userData.role
+              role: userData.role,
+              imageUri: userData.imageUri || '',
             }
           });
         } else {

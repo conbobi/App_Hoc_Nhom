@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, Alert } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, Alert,Button, Image } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { RootStackParamList } from './types/RootStackParamList';
@@ -7,6 +7,7 @@ import styles from '../styles/DangKyStyles';
 import firebase from 'firebase/compat/app';
 import 'firebase/compat/auth';
 import 'firebase/compat/firestore';
+import * as ImagePicker from 'expo-image-picker';
 
 const firebaseConfig = {
   apiKey: "AIzaSyD-ye8v7QJmC3kLAIQLpGNNP48CUDZQQFM",
@@ -29,9 +30,23 @@ export default function DangKy() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [role, setRole] = useState('');
+  const [imageUri, setImageUri] = useState('');
   const navigation = useNavigation<DangKyScreenNavigationProp>();
-  const handelDangNhap = async () => {
-    navigation.navigate('DangNhap', { userData: { fullName, email, role } });
+
+  const handlePickImage = async () => {
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      allowsEditing: true,
+      aspect: [1, 1],
+      quality: 1,
+    });
+
+    if (!result.canceled) {
+      setImageUri(result.assets[0].uri);
+    }
+  };
+const handleDangNhap = () => {
+  navigation.navigate('DangNhap');
 }
   const handleDangKy = async () => {
     if (!fullName || !email || !password || !role) {
@@ -44,15 +59,27 @@ export default function DangKy() {
       const userCredential = await firebase.auth().createUserWithEmailAndPassword(email, password);
       const user = userCredential.user;
 
+      // Upload image if a new one is selected
+      let uploadedImageUrl = '';
+      if (imageUri) {
+        const response = await fetch(imageUri);
+        const blob = await response.blob();
+        const ref = firebase.storage().ref().child(`avatars/${user?.uid}`);
+        await ref.put(blob);
+        uploadedImageUrl = await ref.getDownloadURL();
+      }
+
       // Lưu thông tin bổ sung vào Firestore
       await firebase.firestore().collection('users').doc(user?.uid).set({
         fullName,
         email,
+        password,
         role,
+        imageUri: uploadedImageUrl,
       });
 
       Alert.alert('Thành công', 'Đăng ký thành công!');
-      navigation.navigate('DangNhap', { userData: { fullName, email, role } }); // Chuyển đến màn hình đăng nhập
+      navigation.navigate('DangNhap'); // Chuyển đến màn hình đăng nhập
     } catch (error) {
       Alert.alert('Lỗi', (error as any).message || 'Đăng ký thất bại!');
     }
@@ -87,12 +114,15 @@ export default function DangKy() {
         onChangeText={setRole}
         style={styles.input}
       />
+      <TouchableOpacity onPress={handlePickImage} style={{ marginTop: 10 ,backgroundColor:"yellow", shadowColor: 'black', marginBottom: 20}}>
+        <Text style={styles.buttonText}>Chọn Ảnh</Text>
+      </TouchableOpacity>
+      {imageUri ? <Image source={{ uri: imageUri }} style={{ width: 100, height: 100, marginTop: 10 }} /> : null}
       <TouchableOpacity onPress={handleDangKy} style={styles.button}>
         <Text style={styles.buttonText}>Đăng Ký</Text>
       </TouchableOpacity>
-      <Text style={{alignContent:"center", textAlign:"center"}}  > or</Text>
-      <TouchableOpacity onPress={handelDangNhap} style={styles.button}>
-        <Text style={styles.buttonText}>Đăng nhập</Text>
+      <TouchableOpacity onPress={handleDangNhap} style={styles.button}>
+        <Text style={styles.buttonText}>Đăng Nhập</Text>
       </TouchableOpacity>
     </View>
   );

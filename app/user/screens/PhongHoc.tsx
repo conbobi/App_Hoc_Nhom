@@ -26,12 +26,22 @@ export default function PhongHoc({ route }: PhongHocProps) {
 
   const [messages, setMessages] = useState<Message[]>([]);
   const [message, setMessage] = useState('');
+  const [userNames, setUserNames] = useState<{ [key: string]: string }>({});
 
   useEffect(() => {
     const fetchMessages = async () => {
       const snapshot = await firebase.firestore().collection('rooms').doc(roomId).collection('messages').orderBy('timestamp').get();
       const fetchedMessages = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })) as Message[];
       setMessages(fetchedMessages);
+
+      // Fetch user names
+      const userIds = Array.from(new Set(fetchedMessages.map(msg => msg.senderId)));
+      const userDocs = await Promise.all(userIds.map(id => firebase.firestore().collection('users').doc(id).get()));
+      const userNamesMap = userDocs.reduce((acc, doc) => {
+        acc[doc.id] = doc.data()?.fullName || doc.id;
+        return acc;
+      }, {} as { [key: string]: string });
+      setUserNames(userNamesMap);
     };
     fetchMessages();
   }, [roomId]);
@@ -61,16 +71,22 @@ export default function PhongHoc({ route }: PhongHocProps) {
     setMessages((prev) => prev.filter((msg) => msg.id !== messageId));
   };
 
-  const renderMessageItem = ({ item }: { item: Message }) => (
-    <View style={styles.messageItem}>
-      <Text style={styles.messageText}>{item.content}</Text>
-      {isOwner && (
-        <TouchableOpacity onPress={() => handleDeleteMessage(item.id)}>
-          <Text style={styles.sendButton}>Xóa</Text>
-        </TouchableOpacity>
-      )}
-    </View>
-  );
+  const renderMessageItem = ({ item }: { item: Message }) => {
+    const isCurrentUser = item.senderId === currentUserId;
+    const messageStyle = isCurrentUser ? styles.currentUserMessage : styles.otherUserMessage;
+    const messageContainerStyle = isCurrentUser ? styles.currentUserMessageContainer : styles.otherUserMessageContainer;
+    const senderName = userNames[item.senderId] || item.senderId;
+
+    return (
+      <View style={messageContainerStyle}>
+        <Text style={styles.senderName}>{senderName}</Text>
+        <View style={messageStyle}>
+          <Text style={styles.messageText}>{item.content}</Text>
+          <Text style={styles.timestamp}>{new Date(item.timestamp).toLocaleString()}</Text>
+        </View>
+      </View>
+    );
+  };
 
   return (
     <View style={styles.container}>
@@ -125,4 +141,36 @@ const styles = StyleSheet.create({
   },
   sendButton: { backgroundColor: '#007bff', padding: 10, borderRadius: 10, marginLeft: 10 },
   sendButtonText: { color: '#fff' },
+  currentUserMessageContainer: {
+    alignSelf: 'flex-end',
+    alignItems: 'flex-end',
+    marginBottom: 10,
+  },
+  otherUserMessageContainer: {
+    alignSelf: 'flex-start',
+    alignItems: 'flex-start',
+    marginBottom: 10,
+  },
+  currentUserMessage: {
+    backgroundColor: '#007bff',
+    padding: 10,
+    borderRadius: 10,
+    maxWidth: '80%',
+  },
+  otherUserMessage: {
+    backgroundColor: '#f0f0f0',
+    padding: 10,
+    borderRadius: 10,
+    maxWidth: '80%',
+  },
+  senderName: {
+    fontSize: 12,
+    fontWeight: 'bold',
+    marginBottom: 5,
+  },
+  timestamp: {
+    fontSize: 10,
+    color: '#888',
+    marginTop: 5,
+  },
 });
