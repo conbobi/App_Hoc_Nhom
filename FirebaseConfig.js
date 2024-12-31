@@ -2,7 +2,7 @@
 import firebase from 'firebase/compat/app';
 import 'firebase/compat/auth';
 import 'firebase/compat/firestore';
-
+import 'firebase/compat/storage';
 const firebaseConfig = {
   apiKey: "AIzaSyD-ye8v7QJmC3kLAIQLpGNNP48CUDZQQFM",
   authDomain: "app-hoc-nhom.firebaseapp.com",

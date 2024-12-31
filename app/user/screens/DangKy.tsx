@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, Alert,Button, Image } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, Alert, Image } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { RootStackParamList } from './types/RootStackParamList';
@@ -7,21 +7,8 @@ import styles from '../styles/DangKyStyles';
 import firebase from 'firebase/compat/app';
 import 'firebase/compat/auth';
 import 'firebase/compat/firestore';
+import 'firebase/compat/storage';
 import * as ImagePicker from 'expo-image-picker';
-
-const firebaseConfig = {
-  apiKey: "AIzaSyD-ye8v7QJmC3kLAIQLpGNNP48CUDZQQFM",
-  authDomain: "app-hoc-nhom.firebaseapp.com",
-  projectId: "app-hoc-nhom",
-  storageBucket: "app-hoc-nhom.appspot.com",
-  messagingSenderId: "45281545059",
-  appId: "1:45281545059:web:edace200e76939e062a156",
-  measurementId: "G-8XECQG39J8",
-};
-
-if (firebase.apps.length === 0) {
-  firebase.initializeApp(firebaseConfig);
-}
 
 type DangKyScreenNavigationProp = StackNavigationProp<RootStackParamList, 'DangKy'>;
 
@@ -30,14 +17,15 @@ export default function DangKy() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [role, setRole] = useState('');
-  const [imageUri, setImageUri] = useState('');
   const navigation = useNavigation<DangKyScreenNavigationProp>();
 
-  const handlePickImage = async () => {
-    const result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+  const [imageUri, setImageUri] = useState<string | null>(null);
+
+  const pickImage = async () => {
+    let result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.All,
       allowsEditing: true,
-      aspect: [1, 1],
+      aspect: [4, 3],
       quality: 1,
     });
 
@@ -45,9 +33,7 @@ export default function DangKy() {
       setImageUri(result.assets[0].uri);
     }
   };
-const handleDangNhap = () => {
-  navigation.navigate('DangNhap');
-}
+
   const handleDangKy = async () => {
     if (!fullName || !email || !password || !role) {
       Alert.alert('Lỗi', 'Vui lòng nhập đầy đủ thông tin.');
@@ -75,12 +61,13 @@ const handleDangNhap = () => {
         email,
         password,
         role,
-        imageUri: uploadedImageUrl,
+        imageUri: uploadedImageUrl || '',
       });
 
       Alert.alert('Thành công', 'Đăng ký thành công!');
       navigation.navigate('DangNhap'); // Chuyển đến màn hình đăng nhập
     } catch (error) {
+      console.error('Error registering user:', error);
       Alert.alert('Lỗi', (error as any).message || 'Đăng ký thất bại!');
     }
   };
@@ -114,14 +101,14 @@ const handleDangNhap = () => {
         onChangeText={setRole}
         style={styles.input}
       />
-      <TouchableOpacity onPress={handlePickImage} style={{ marginTop: 10 ,backgroundColor:"yellow", shadowColor: 'black', marginBottom: 20}}>
+      <TouchableOpacity onPress={pickImage} style={{ marginTop: 10, backgroundColor: "yellow", shadowColor: 'black', marginBottom: 20 }}>
         <Text style={styles.buttonText}>Chọn Ảnh</Text>
       </TouchableOpacity>
       {imageUri ? <Image source={{ uri: imageUri }} style={{ width: 100, height: 100, marginTop: 10 }} /> : null}
       <TouchableOpacity onPress={handleDangKy} style={styles.button}>
         <Text style={styles.buttonText}>Đăng Ký</Text>
       </TouchableOpacity>
-      <TouchableOpacity onPress={handleDangNhap} style={styles.button}>
+      <TouchableOpacity onPress={() => navigation.navigate('DangNhap')} style={styles.button}>
         <Text style={styles.buttonText}>Đăng Nhập</Text>
       </TouchableOpacity>
     </View>
