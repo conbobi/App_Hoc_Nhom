@@ -4,11 +4,8 @@ import { useNavigation } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { RootStackParamList } from './types/RootStackParamList';
 import styles from '../styles/DangKyStyles';
-import firebase from 'firebase/compat/app';
-import 'firebase/compat/auth';
-import 'firebase/compat/firestore';
-import 'firebase/compat/storage';
 import * as ImagePicker from 'expo-image-picker';
+import { supabase } from '@/supabase';
 
 type DangKyScreenNavigationProp = StackNavigationProp<RootStackParamList, 'DangKy'>;
 
@@ -23,7 +20,7 @@ export default function DangKy() {
 
   const pickImage = async () => {
     let result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.All,
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
       allowsEditing: true,
       aspect: [4, 3],
       quality: 1,
@@ -39,33 +36,59 @@ export default function DangKy() {
       Alert.alert('Lỗi', 'Vui lòng nhập đầy đủ thông tin.');
       return;
     }
-
+  
     try {
-      // Đăng ký tài khoản với Firebase Authentication
-      const userCredential = await firebase.auth().createUserWithEmailAndPassword(email, password);
-      const user = userCredential.user;
-
-      // Upload image if a new one is selected
-      let uploadedImageUrl = '';
-      if (imageUri) {
-        const response = await fetch(imageUri);
-        const blob = await response.blob();
-        const ref = firebase.storage().ref().child(`avatars/${user?.uid}`);
-        await ref.put(blob);
-        uploadedImageUrl = await ref.getDownloadURL();
-      }
-
-      // Lưu thông tin bổ sung vào Firestore
-      await firebase.firestore().collection('users').doc(user?.uid).set({
-        fullName,
+      // Đăng ký tài khoản người dùng với Supabase
+      const { data: { user }, error } = await supabase.auth.signUp({
         email,
         password,
-        role,
-        imageUri: uploadedImageUrl || '',
       });
 
+      if (error) {
+        throw error;
+      }
+
+      let uploadedImageUrl = '';
+      if (imageUri) {
+        console.log('Uploading image...');
+        const response = await fetch(imageUri);
+        if (!response.ok) {
+          throw new Error('Failed to fetch the image from the URI');
+        }
+        const blob = await response.blob();
+        const { data, error: uploadError } = await supabase.storage
+          .from('avatars')
+          .upload(`public/${user?.id}`, blob, {
+            cacheControl: '3600',
+            upsert: false,
+          });
+
+        if (uploadError) {
+          throw uploadError;
+        }
+
+        uploadedImageUrl = data?.path ? supabase.storage.from('avatars').getPublicUrl(data.path).data.publicUrl : '';
+        console.log('Image uploaded successfully:', uploadedImageUrl);
+      }
+
+      console.log('Đang ghi dữ liệu vào Supabase...');
+      const { error: insertError } = await supabase.from('users').insert([
+        {
+          id: user?.id,
+          fullName,
+          email,
+          password,
+          role,
+          imageUri: uploadedImageUrl || '',
+        },
+      ]);
+
+      if (insertError) {
+        throw insertError;
+      }
+
       Alert.alert('Thành công', 'Đăng ký thành công!');
-      navigation.navigate('DangNhap'); // Chuyển đến màn hình đăng nhập
+      navigation.navigate('DangNhap');
     } catch (error) {
       console.error('Error registering user:', error);
       Alert.alert('Lỗi', (error as any).message || 'Đăng ký thất bại!');
