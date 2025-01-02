@@ -1,5 +1,12 @@
 {
   "expo": {
+    "updates": {
+      "codeSigningCertificate": "./certs/certificate.pem",
+      "codeSigningMetadata": {
+        "keyid": "main",
+        "alg": "rsa-v1_5-sha256"
+      }
+    },
     "entryPoint": "./App.js",
     "name": "App_Hoc_Nhom",
     "slug": "App_Hoc_Nhom",
@@ -21,6 +28,12 @@
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#ffffff"
+      },
+      "googleServicesFile": "./google-services.json",
+      "config": {
+        "googleSignIn": {
+          "certificateHash": "67:36:78:BA:BB:DE:FB:00:23:3A:D0:3E:8F:8A:E6:6D:EC:54:72:07"
+        }
       }
     },
     "web": {
