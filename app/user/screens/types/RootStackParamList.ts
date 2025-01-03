@@ -11,4 +11,5 @@ export type RootStackParamList = {
   DangKy: undefined;
   DangNhap: { userData?: { id?: number; fullName?: string; email?: string; password?: string; role?: string } };
   UploadScreen: undefined; // Thêm dòng này
+  UpAppWrite: undefined; // Thêm dòng này
 };

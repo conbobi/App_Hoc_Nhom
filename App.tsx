@@ -12,12 +12,13 @@ import DanhSachPhong from './app/user/screens/DanhSachPhong';
 import UserFooter from './app/user/components/UserFooter';
 import { RootStackParamList } from './app/user/screens/types/RootStackParamList';
 import UploadScreen from './app/user/screens/UploadScreen';
+import UpAppWrite from './app/user/screens/UpAppWrite';
 const Stack = createStackNavigator<RootStackParamList>();
 
 export default function App() {
   return (
     <NavigationContainer>
-      <Stack.Navigator initialRouteName="UploadScreen">
+      <Stack.Navigator initialRouteName="UpAppWrite">
         <Stack.Screen name="Home" component={Home} />
         <Stack.Screen name="NhiemVu" component={NhiemVu} />
         <Stack.Screen name="Notifications" component={Notifications} />
@@ -28,6 +29,7 @@ export default function App() {
         <Stack.Screen name='DangNhap' component={DangNhap} />
         <Stack.Screen name='DangKy' component={DangKy}/>
         <Stack.Screen name='UploadScreen' component={UploadScreen}/>
+        <Stack.Screen name='UpAppWrite' component={UpAppWrite}/>
       </Stack.Navigator>
     </NavigationContainer>
   );
