@@ -1,3 +1,4 @@
+import { StackNavigationProp } from "@react-navigation/stack";
 import { RouteProp } from "@react-navigation/native";
 import { useNavigation } from "@react-navigation/native"; // Import navigation
 import React, { useState, useEffect } from "react";
@@ -10,9 +11,10 @@ import {
   Image,
   Alert,
   Linking,
+  Button,
 } from "react-native";
-import { RootStackParamList } from "../types/RootStackParamList";
-import Message from "../types/Message";
+import { RootStackParamList } from "../screens/types/RootStackParamList";
+import Message from "../screens/types/Message";
 import firebase from "firebase/compat/app";
 import "firebase/compat/auth";
 import "firebase/compat/firestore";
@@ -25,7 +27,7 @@ type PhongHocProps = {
 
 export default function PhongHoc({ route }: PhongHocProps) {
   const { roomId, roomName } = route.params || {};
-  const navigation = useNavigation(); // Sử dụng navigation
+  const navigation = useNavigation<StackNavigationProp<RootStackParamList>>(); // Sử dụng navigation
   const currentUserId = firebase.auth().currentUser?.uid || "";
   const [messages, setMessages] = useState<Message[]>([]);
   const [message, setMessage] = useState("");
@@ -86,7 +88,7 @@ export default function PhongHoc({ route }: PhongHocProps) {
           >
             {item.image && <Image source={{ uri: item.image }} style={styles.messageImage} />}
             {item.file && (
-              <TouchableOpacity onPress={() => Linking.openURL(item.file)}>
+              <TouchableOpacity onPress={() => Linking.openURL(item.file||"")}>
                 <Text style={styles.fileLinkText}>📄 {decodeURIComponent(item.file.split("/").pop() || "Tập tin")}</Text>
               </TouchableOpacity>
             )}
@@ -104,6 +106,11 @@ export default function PhongHoc({ route }: PhongHocProps) {
       <TouchableOpacity style={styles.callButton} onPress={() => navigation.navigate("VideoCall" as never)}>
         <Text style={styles.callButtonText}>📞 Call</Text>
       </TouchableOpacity>
+      <Button 
+  title="Xem Chi Tiết Phòng" 
+  onPress={() => navigation.navigate("ChiTietPhong", { roomId, roomName, ownerId: currentUserId })}
+/>
+
 
       <Text style={styles.roomTitle}>{roomName}</Text>
       <FlatList

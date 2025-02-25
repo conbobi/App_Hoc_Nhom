@@ -28,6 +28,7 @@ export type RootStackParamList = {
   Notifications: { userData: { id: string; fullName: string; email: string; password: string; role: string; avatarUri?: string  } };
   DanhSachPhong: { userData: { id: number; fullName: string; email: string; password: string; role: string; avatarUri?: string  } };
   UserFooter: { userData: { id: number; fullName: string; email: string; password: string; role: string; avatarUri?: string  } };
+  ChiTietPhong: { roomId: string; roomName: string; ownerId: string };
   PhongHoc: { roomId: string; roomName: string; ownerId: string };
   Profile: { userId: string; userData: { id: string; fullName: string; email: string; password: string; role: string; avatarUri?: string } };
   DangKy: undefined;
