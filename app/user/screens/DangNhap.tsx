@@ -112,6 +112,7 @@ export default function DangNhap() {
       <TouchableOpacity onPress={() => navigation.navigate('QuenMatKhau')}>
         <Text style={styles.forgotPasswordText}>Quên mật khẩu?</Text>
       </TouchableOpacity>
+      <Text>code giả bộ</Text>
     </View>
   );
 }
