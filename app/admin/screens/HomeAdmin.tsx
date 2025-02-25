@@ -27,7 +27,6 @@ const HomeAdmin = () => {
         <Text style={styles.subtitle}>Giám sát và Quản lý Hệ thống</Text>
 
         {/* Quản lý hoạt động nhóm */}
-          <Text>212312312 hoàng đẹp trai vãi cứt</Text>
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Quản lý hoạt động nhóm</Text>
           <PieChart
