@@ -32,7 +32,7 @@ export default function DangKy() {
   const navigation = useNavigation<DangKyScreenNavigationProp>();
   const handelDangNhap = async () => {
     navigation.navigate('DangNhap', { userData: { fullName, email, role } });
-}
+  }
   const handleDangKy = async () => {
     if (!fullName || !email || !password || !role) {
       Alert.alert('Lỗi', 'Vui lòng nhập đầy đủ thông tin.');
@@ -90,9 +90,9 @@ export default function DangKy() {
       <TouchableOpacity onPress={handleDangKy} style={styles.button}>
         <Text style={styles.buttonText}>Đăng Ký</Text>
       </TouchableOpacity>
-      <Text style={{alignContent:"center", textAlign:"center"}}  > or</Text>
-      <TouchableOpacity onPress={handelDangNhap} style={styles.button}>
-        <Text style={styles.buttonText}>Đăng nhập</Text>
+      <Text style={styles.orText}>hoặc</Text>
+      <TouchableOpacity onPress={handelDangNhap} style={styles.buttonSecondary}>
+        <Text style={styles.buttonTextSecondary}>Đăng Nhập</Text>
       </TouchableOpacity>
     </View>
   );

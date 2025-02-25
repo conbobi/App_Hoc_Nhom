@@ -7,7 +7,7 @@ import {
 } from 'react-native';
 import { ScrollView } from 'react-native-virtualized-view';
 import { Ionicons } from '@expo/vector-icons';
-import UserFooter from '../components/UserFooter';
+import Layout from '../components/layout';
 import styles from '../styles/HomeStyles';
 export default function Home() {
   const dummyTasks = [
@@ -20,6 +20,7 @@ export default function Home() {
     { id: '2', name: 'Nhóm thuyết trình môn Toán' },
   ];
   return (
+    <Layout>
     <View style={styles.container}>
        <ScrollView style={styles.container}>
       {/* Header */}
@@ -84,7 +85,8 @@ export default function Home() {
         </View>
       </View>
     </ScrollView>
-      <UserFooter />
+      
     </View>
+  </Layout>
   );
 }

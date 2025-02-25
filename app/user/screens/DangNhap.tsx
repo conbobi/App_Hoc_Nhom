@@ -4,15 +4,20 @@ import { useNavigation } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { RootStackParamList } from './types/RootStackParamList';
 import styles from '../styles/DangNhapStyles';
-import firebase from '../../../FirebaseConfig'; // Import firebase from FirebaseConfig.js
+import firebase from '../../../FirebaseConfig'; // Import Firebase từ FirebaseConfig.js
+import { Ionicons } from '@expo/vector-icons'; // Import biểu tượng mắt từ thư viện Ionicons
 
+// Định nghĩa kiểu cho điều hướng
 type DangNhapScreenNavigationProp = StackNavigationProp<RootStackParamList, 'DangNhap'>;
 
 export default function DangNhap() {
+  // Khai báo state cho email và password
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [isPasswordVisible, setIsPasswordVisible] = useState(false); // Trạng thái hiển thị mật khẩu
   const navigation = useNavigation<DangNhapScreenNavigationProp>();
 
+  // Hàm xử lý khi nhấn nút Đăng Nhập
   const handleDangNhap = async () => {
     if (!email || !password) {
       Alert.alert('Lỗi', 'Vui lòng nhập email và mật khẩu.');
@@ -20,36 +25,50 @@ export default function DangNhap() {
     }
 
     try {
-      // Đăng nhập với Firebase Authentication
       const userCredential = await firebase.auth().signInWithEmailAndPassword(email, password);
       const user = userCredential.user;
 
-      // Lấy thông tin người dùng từ Firestore
       const userDoc = await firebase.firestore().collection('users').doc(user?.uid).get();
       const userData = userDoc.data();
 
       if (userData) {
         Alert.alert('Thành công', 'Đăng nhập thành công!');
         if (user?.uid) {
-          navigation.navigate('Profile', { 
-            userId: user.uid,
-            userData: {
-              id: Number(user.uid),
-              fullName: userData.fullName,
-              email: userData.email,
-              password: userData.password,
-              role: userData.role
-            }
-          });
+          if (userData.role === 'Admin') {
+            navigation.navigate('HomeAdmin');
+          } else {
+            navigation.navigate('Home', {
+              userData: {
+                id: user.uid,
+                fullName: userData.fullName,
+                email: userData.email,
+                password: userData.password,
+                role: userData.role,
+                avatarUri: userData.avatarUri || '',
+              },
+            });
+          }
         } else {
           Alert.alert('Lỗi', 'Không tìm thấy ID người dùng.');
         }
       } else {
         Alert.alert('Lỗi', 'Không tìm thấy thông tin người dùng.');
       }
-    } catch (error) {
-      console.error(error);
-      Alert.alert('Lỗi', (error as any).message || 'Đăng nhập thất bại!');
+    } catch (error: any) {
+      switch (error.code) {
+        case 'auth/invalid-email':
+          Alert.alert('Lỗi', 'Email không hợp lệ.');
+          break;
+        case 'auth/user-not-found':
+          Alert.alert('Lỗi', 'Tài khoản không tồn tại.');
+          break;
+        case 'auth/wrong-password':
+          Alert.alert('Lỗi', 'Sai mật khẩu. Vui lòng thử lại.');
+          break;
+        default:
+          Alert.alert('Lỗi', 'Đăng nhập thất bại. Vui lòng thử lại sau.');
+          break;
+      }
     }
   };
 
@@ -62,15 +81,36 @@ export default function DangNhap() {
         value={email}
         onChangeText={setEmail}
       />
-      <TextInput
-        style={styles.input}
-        placeholder="Mật khẩu"
-        value={password}
-        onChangeText={setPassword}
-        secureTextEntry
-      />
-      <TouchableOpacity style={styles.button} onPress={handleDangNhap}>
-        <Text style={styles.buttonText}>Đăng Nhập</Text>
+      <View style={styles.passwordContainer}>
+        <TextInput
+          style={styles.passwordInput}
+          placeholder="Mật khẩu"
+          value={password}
+          onChangeText={setPassword}
+          secureTextEntry={!isPasswordVisible} // Hiển thị hoặc ẩn mật khẩu
+        />
+        <TouchableOpacity
+          style={styles.eyeIcon}
+          onPress={() => setIsPasswordVisible(!isPasswordVisible)} // Đổi trạng thái hiển thị
+        >
+          <Ionicons
+            name={isPasswordVisible ? 'eye' : 'eye-off'} // Biểu tượng mắt
+            size={24}
+            color="#999"
+          />
+        </TouchableOpacity>
+      </View>
+      <View style={styles.buttonContainer}>
+        <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('DangKy')}>
+          <Text style={styles.buttonText}>Đăng Ký</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity style={styles.button} onPress={handleDangNhap}>
+          <Text style={styles.buttonText}>Đăng Nhập</Text>
+        </TouchableOpacity>
+      </View>
+      <TouchableOpacity onPress={() => navigation.navigate('QuenMatKhau')}>
+        <Text style={styles.forgotPasswordText}>Quên mật khẩu?</Text>
       </TouchableOpacity>
     </View>
   );

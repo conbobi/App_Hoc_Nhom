@@ -10,23 +10,42 @@ import DangNhap from './app/user/screens/DangNhap';
 import DangKy from './app/user/screens/DangKy';
 import DanhSachPhong from './app/user/screens/DanhSachPhong';
 import UserFooter from './app/user/components/UserFooter';
-import { RootStackParamList } from './app/user/screens/types/RootStackParamList';
+import QuenMatKhau from './app/user/screens/QuenMatKhau';
+import VideoCall from './app/user/components/VideoCall';
+// admin
+import HomeAdmin from './app/admin/screens/HomeAdmin';
+import QlNhom from './app/admin/screens/QlNhom';
+import UserManagement from './app/admin/screens/UserManagement';
+import AdminAcc from './app/admin/screens/AdminAcc';
+import GroupDetail from './app/admin/screens/GroupDetail';
+import EditGroup from './app/admin/screens/EditGroup';
 
+import { RootStackParamList } from './app/user/screens/types/RootStackParamList';
 const Stack = createStackNavigator<RootStackParamList>();
 
 export default function App() {
   return (
     <NavigationContainer>
-      <Stack.Navigator initialRouteName="DangKy">
-        <Stack.Screen name="Home" component={Home} />
+      <Stack.Navigator initialRouteName="DangNhap">
+        {/* Các màn hình của người dùng */}
+        <Stack.Screen name="Home" component={Home} options={{headerShown: false}}/>
         <Stack.Screen name="NhiemVu" component={NhiemVu} />
         <Stack.Screen name="Notifications" component={Notifications} />
-        <Stack.Screen name="DanhSachPhong" component={DanhSachPhong} />
+        <Stack.Screen name="DanhSachPhong" component={DanhSachPhong} options={{headerShown:false}} />
         <Stack.Screen name="PhongHoc" component={PhongHoc} />
         <Stack.Screen name="Profile" component={Profile} />
         <Stack.Screen name="UserFooter" component={UserFooter} />
-        <Stack.Screen name='DangNhap' component={DangNhap} />
-        <Stack.Screen name='DangKy' component={DangKy}/>
+        <Stack.Screen name="DangNhap" component={DangNhap} options={{ headerShown: false }} />
+        <Stack.Screen name="DangKy" component={DangKy} options={{ headerShown: false }} />
+        <Stack.Screen name="QuenMatKhau" component={QuenMatKhau} options={{ headerShown: false }} />
+        <Stack.Screen name="VideoCall" component={VideoCall} options={{ headerShown: false }} />
+        {/* Các màn hình của admin */}
+        <Stack.Screen name="HomeAdmin" component={HomeAdmin} options={{ headerShown: false }} />
+        <Stack.Screen name="QlNhom" component={QlNhom} options={{ headerShown: false }} />
+        <Stack.Screen name="UserManagement" component={UserManagement} options={{ headerShown: false }} />
+        <Stack.Screen name="AdminAcc" component={AdminAcc} options={{ headerShown: false }} />
+        <Stack.Screen name="GroupDetail" component={GroupDetail} options={{ headerShown: false }} />
+        <Stack.Screen name="EditGroup" component={EditGroup} options={{ headerShown: false }} />
       </Stack.Navigator>
     </NavigationContainer>
   );

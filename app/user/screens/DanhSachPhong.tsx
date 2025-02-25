@@ -7,25 +7,28 @@ import {
   TextInput,
   Alert,
 } from 'react-native';
+import * as Clipboard from 'expo-clipboard';
 import { useNavigation } from '@react-navigation/native';
-import { RootStackParamList } from './types/RootStackParamList';
 import { StackNavigationProp } from '@react-navigation/stack';
-import Room from './types/Room';
-import message from './types/Message';
-import styles from '../styles/DanhSachPhongStyles';
 import firebase from 'firebase/compat/app';
 import 'firebase/compat/auth';
 import 'firebase/compat/firestore';
+import Layout from '../components/layout';
+import styles from '../styles/DanhSachPhongStyles';
+import { RootStackParamList } from './types/RootStackParamList';
+import Room from './types/Room';
+import message from './types/Message';
 
 type DanhSachPhongScreenNavigationProp = StackNavigationProp<RootStackParamList, 'DanhSachPhong'>;
 
 export default function DanhSachPhong() {
   const navigation = useNavigation<DanhSachPhongScreenNavigationProp>();
-  const [rooms, setRooms] = useState<Room[]>([]); // Danh sách phòng
+  const [rooms, setRooms] = useState<Room[]>([]);
   const [roomId, setRoomId] = useState('');
   const [roomName, setRoomName] = useState('');
   const [userId, setUserId] = useState('');
   const [nextRoomId, setNextRoomId] = useState(0);
+  const [activeTab, setActiveTab] = useState<'owner' | 'member'>('owner');
 
   useEffect(() => {
     const fetchUserId = async () => {
@@ -45,7 +48,6 @@ export default function DanhSachPhong() {
       const fetchedRooms = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })) as Room[];
       setRooms(fetchedRooms);
 
-      // Determine the next room ID
       const maxRoomId = fetchedRooms.reduce((maxId, room) => {
         const roomId = parseInt(room.id, 10);
         return roomId > maxId ? roomId : maxId;
@@ -54,6 +56,12 @@ export default function DanhSachPhong() {
     };
     fetchRooms();
   }, [userId]);
+
+  const handleCopyLink = (roomId: string) => {
+    const roomLink = `https://yourapp.com/join/${roomId}`;
+    Clipboard.setStringAsync(roomLink);
+    Alert.alert('Đã sao chép', 'Link tham gia phòng đã được sao chép vào clipboard!');
+  };
 
   const handleJoinRoom = async () => {
     if (roomId.trim() === '') {
@@ -68,7 +76,6 @@ export default function DanhSachPhong() {
       Alert.alert('Lỗi', 'Phòng không tồn tại!');
       return;
     }
-
     try {
       await roomRef.update({
         membersId: firebase.firestore.FieldValue.arrayUnion(userId),
@@ -76,11 +83,6 @@ export default function DanhSachPhong() {
 
       Alert.alert('Thành công', `Đã tham gia phòng với mã ID: ${roomId}`);
       setRoomId('');
-
-      // Fetch the updated list of rooms
-      const snapshot = await firebase.firestore().collection('rooms').where('membersId', 'array-contains', userId).get();
-      const fetchedRooms = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })) as Room[];
-      setRooms(fetchedRooms);
     } catch (error) {
       console.error('Error joining room:', error);
       Alert.alert('Lỗi', 'Không thể tham gia phòng. Vui lòng thử lại.');
@@ -99,13 +101,14 @@ export default function DanhSachPhong() {
       ownerId: userId,
       membersId: [userId],
       date: new Date(),
+      description: '',
       messages: [] as message[],
       state: "string",
     };
 
     try {
-      const roomRef = await firebase.firestore().collection('rooms').doc(newRoom.id).set(newRoom);
-      setRooms((prevRooms) => [...prevRooms, newRoom]);
+      await firebase.firestore().collection('rooms').doc(newRoom.id).set(newRoom);
+      setRooms([...rooms, newRoom]);
       setNextRoomId(nextRoomId + 1);
       Alert.alert('Thành công', `Đã tạo phòng: ${roomName}`);
       setRoomName('');
@@ -116,43 +119,42 @@ export default function DanhSachPhong() {
   };
 
   const renderRoomItem = ({ item }: { item: Room }) => (
-    <TouchableOpacity
-      style={styles.roomItem}
-      onPress={() => navigation.navigate('PhongHoc', { roomId: item.id, roomName: item.name, ownerId: item.ownerId })}
-    >
-      <Text style={styles.roomName}>{item.name}</Text>
-    </TouchableOpacity>
+    <View style={styles.roomItemContainer}>
+      <TouchableOpacity
+        style={styles.roomItem}
+        onPress={() => navigation.navigate('PhongHoc', { roomId: item.id, roomName: item.name, ownerId: item.ownerId })}
+      >
+        <Text style={styles.roomName}>{item.name}</Text>
+      </TouchableOpacity>
+      {item.ownerId === userId && (
+        <TouchableOpacity style={styles.copyButton} onPress={() => handleCopyLink(item.id)}>
+          <Text style={styles.buttonText}>📋 Link</Text>
+        </TouchableOpacity>
+      )}
+    </View>
   );
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.header}>Danh sách phòng học</Text>
-      <FlatList
-        data={rooms}
-        keyExtractor={(item) => item.id}
-        renderItem={renderRoomItem}
-        style={styles.roomList}
-      />
-      <View style={styles.actionContainer}>
-        <TextInput
-          style={styles.input}
-          placeholder="Tên phòng mới"
-          value={roomName}
-          onChangeText={setRoomName}
+    <Layout>
+      <View style={styles.container}>
+        <Text style={styles.header}>Danh sách phòng học</Text>
+        <FlatList
+          data={activeTab === 'owner' ? rooms.filter(room => room.ownerId === userId) : rooms.filter(room => room.ownerId !== userId)}
+          keyExtractor={(item) => item.id}
+          renderItem={renderRoomItem}
+          style={styles.roomList}
         />
-        <TouchableOpacity style={styles.button} onPress={handleCreateRoom}>
-          <Text style={styles.buttonText}>Tạo phòng</Text>
-        </TouchableOpacity>
-        <TextInput
-          style={styles.input}
-          placeholder="Nhập mã ID phòng"
-          value={roomId}
-          onChangeText={setRoomId}
-        />
-        <TouchableOpacity style={styles.button} onPress={handleJoinRoom}>
-          <Text style={styles.buttonText}>Tham gia phòng</Text>
-        </TouchableOpacity>
+        <View style={styles.actionContainer}>
+          <TextInput style={styles.input} placeholder="Tên phòng mới" value={roomName} onChangeText={setRoomName} />
+          <TouchableOpacity style={styles.createButton} onPress={handleCreateRoom}>
+            <Text style={styles.buttonText}>Tạo phòng</Text>
+          </TouchableOpacity>
+          <TextInput style={styles.input} placeholder="Nhập link hoặc ID phòng" value={roomId} onChangeText={setRoomId} />
+          <TouchableOpacity style={styles.joinButton} onPress={handleJoinRoom}>
+            <Text style={styles.buttonText}>Tham gia phòng</Text>
+          </TouchableOpacity>
+        </View>
       </View>
-    </View>
+    </Layout>
   );
 }

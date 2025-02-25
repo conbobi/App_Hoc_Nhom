@@ -1,8 +1,11 @@
-// Define the Message type
 interface Message {
   id: string;
   content: string;
-  senderId: string; // Add this line if it's missing
-  timestamp: Date;
+  image?: string | null;
+  file?: string | null;
+  senderId: string;
+  senderName: string;
+  senderAvatar?: string;
+  timestamp: firebase.default.firestore.Timestamp;
 }
 export default Message;

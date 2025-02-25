@@ -21,16 +21,25 @@ const styles = StyleSheet.create({
     backgroundColor: '#f5f5f5',
   },
   avatarContainer: {
+    justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: 20,
+    position: 'relative',
   },
   avatar: {
-    borderWidth: 2,
-    borderColor: '#6c757d',
     width: 100,
     height: 100,
     borderRadius: 50,
-    backgroundColor: '#ccc',
+    borderWidth: 2,
+    borderColor: '#fff',
+  },
+  cameraIcon: {
+    position: 'absolute',
+    bottom: 0,
+  alignContent: 'center',
+    backgroundColor: '#000',
+    padding: 5,
+    borderRadius: 20,
+    
   },
   infoContainer: {
     marginBottom: 20,
@@ -89,7 +98,8 @@ const styles = StyleSheet.create({
   },
   buttonRow: {
     flexDirection: 'row',
-    marginTop: 15,
+    justifyContent: 'space-around',
+    marginTop: 20,
   },
   editButton: {
     backgroundColor: '#f06292',

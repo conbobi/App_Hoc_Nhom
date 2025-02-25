@@ -1,79 +1,110 @@
-import { RouteProp } from '@react-navigation/native';
-import React, { useState, useEffect } from 'react';
+import { RouteProp } from "@react-navigation/native";
+import { useNavigation } from "@react-navigation/native"; // Import navigation
+import React, { useState, useEffect } from "react";
 import {
   View,
   Text,
   TextInput,
   TouchableOpacity,
   FlatList,
-  StyleSheet,
+  Image,
   Alert,
-} from 'react-native';
-import { RootStackParamList } from './types/RootStackParamList';
-import Message from './types/Message';
-import firebase from 'firebase/compat/app';
-import 'firebase/compat/auth';
-import 'firebase/compat/firestore';
+  Linking,
+} from "react-native";
+import { RootStackParamList } from "../types/RootStackParamList";
+import Message from "../types/Message";
+import firebase from "firebase/compat/app";
+import "firebase/compat/auth";
+import "firebase/compat/firestore";
+import styles from "../styles/PhongHocStyles";
+import UpFile from "../components/UpFile";
 
 type PhongHocProps = {
-  route: RouteProp<RootStackParamList, 'PhongHoc'>;
+  route: RouteProp<RootStackParamList, "PhongHoc">;
 };
 
 export default function PhongHoc({ route }: PhongHocProps) {
-  const { roomId, roomName, ownerId } = route.params || {};
-  const currentUserId = firebase.auth().currentUser?.uid || ''; // ID người dùng hiện tại
-  const isOwner = currentUserId === ownerId;
-
+  const { roomId, roomName } = route.params || {};
+  const navigation = useNavigation(); // Sử dụng navigation
+  const currentUserId = firebase.auth().currentUser?.uid || "";
   const [messages, setMessages] = useState<Message[]>([]);
-  const [message, setMessage] = useState('');
+  const [message, setMessage] = useState("");
 
   useEffect(() => {
-    const fetchMessages = async () => {
-      const snapshot = await firebase.firestore().collection('rooms').doc(roomId).collection('messages').orderBy('timestamp').get();
-      const fetchedMessages = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })) as Message[];
-      setMessages(fetchedMessages);
-    };
-    fetchMessages();
+    const unsubscribe = firebase
+      .firestore()
+      .collection("rooms")
+      .doc(roomId)
+      .collection("messages")
+      .orderBy("timestamp", "asc")
+      .onSnapshot((snapshot) => {
+        setMessages(snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() })) as Message[]);
+      });
+
+    return () => unsubscribe();
   }, [roomId]);
 
   const handleSend = async () => {
-    if (message.trim() === '') return;
+    if (!message.trim()) return;
+
+    const user = firebase.auth().currentUser;
+    const userDoc = await firebase.firestore().collection("users").doc(user?.uid).get();
+    const userData = userDoc.data();
 
     const newMessage: Message = {
       id: Date.now().toString(),
       content: message,
       senderId: currentUserId,
-      timestamp: new Date(),
+      senderName: userData?.fullName || "Unknown",
+      senderAvatar: userData?.avatarUri || "",
+      timestamp: firebase.firestore.Timestamp.now(),
     };
 
-    await firebase.firestore().collection('rooms').doc(roomId).collection('messages').add(newMessage);
-    setMessages((prev) => [...prev, newMessage]);
-    setMessage('');
+    await firebase.firestore().collection("rooms").doc(roomId).collection("messages").add(newMessage);
+    setMessage("");
   };
 
-  const handleDeleteMessage = async (messageId: string) => {
-    if (!isOwner) {
-      Alert.alert('Lỗi', 'Chỉ trưởng phòng có quyền xóa tin nhắn!');
-      return;
-    }
+  const renderMessageItem = ({ item }: { item: Message }) => {
+    const isCurrentUser = item.senderId === currentUserId;
 
-    await firebase.firestore().collection('rooms').doc(roomId).collection('messages').doc(messageId).delete();
-    setMessages((prev) => prev.filter((msg) => msg.id !== messageId));
+    return (
+      <View
+        style={[
+          styles.messageContainer,
+          isCurrentUser ? styles.currentUserContainer : styles.otherUserContainer,
+        ]}
+      >
+        <View style={styles.avatarContainer}>
+          <Image source={{ uri: item.senderAvatar }} style={styles.avatar} />
+        </View>
+        <View style={styles.messageContent}>
+          <View
+            style={[
+              styles.messageBubble,
+              isCurrentUser ? styles.currentUserBubble : styles.otherUserBubble,
+            ]}
+          >
+            {item.image && <Image source={{ uri: item.image }} style={styles.messageImage} />}
+            {item.file && (
+              <TouchableOpacity onPress={() => Linking.openURL(item.file)}>
+                <Text style={styles.fileLinkText}>📄 {decodeURIComponent(item.file.split("/").pop() || "Tập tin")}</Text>
+              </TouchableOpacity>
+            )}
+            <Text style={styles.messageText}>{item.content}</Text>
+          </View>
+          <Text style={styles.senderName}>{item.senderName}</Text>
+        </View>
+      </View>
+    );
   };
-
-  const renderMessageItem = ({ item }: { item: Message }) => (
-    <View style={styles.messageItem}>
-      <Text style={styles.messageText}>{item.content}</Text>
-      {isOwner && (
-        <TouchableOpacity onPress={() => handleDeleteMessage(item.id)}>
-          <Text style={styles.sendButton}>Xóa</Text>
-        </TouchableOpacity>
-      )}
-    </View>
-  );
 
   return (
     <View style={styles.container}>
+      {/* Nút Call ở góc phải */}
+      <TouchableOpacity style={styles.callButton} onPress={() => navigation.navigate("VideoCall" as never)}>
+        <Text style={styles.callButtonText}>📞 Call</Text>
+      </TouchableOpacity>
+
       <Text style={styles.roomTitle}>{roomName}</Text>
       <FlatList
         data={messages}
@@ -82,47 +113,19 @@ export default function PhongHoc({ route }: PhongHocProps) {
         style={styles.messageList}
       />
       <View style={styles.inputContainer}>
+        <TouchableOpacity style={styles.iconButton}>
+          <UpFile roomId={roomId} currentUserId={currentUserId} />
+        </TouchableOpacity>
         <TextInput
           style={styles.input}
-          placeholder="Nhập tin nhắn..."
           value={message}
           onChangeText={setMessage}
+          placeholder="Nhập tin nhắn..."
         />
         <TouchableOpacity style={styles.sendButton} onPress={handleSend}>
-          <Text style={styles.sendButtonText}>Gửi</Text>
+          <Text style={styles.sendButtonText}>📩</Text>
         </TouchableOpacity>
       </View>
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: { flex: 1, padding: 10, backgroundColor: '#fff' },
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    marginBottom: 10,
-  },
-  roomTitle: { fontSize: 20, fontWeight: 'bold' },
-  iconContainer: { flexDirection: 'row', gap: 10 },
-  icon: { fontSize: 20, marginHorizontal: 10 },
-  messageList: { flex: 1 },
-  messageItem: {
-    backgroundColor: '#f0f0f0',
-    padding: 10,
-    borderRadius: 10,
-    marginBottom: 10,
-  },
-  messageText: { fontSize: 16 },
-  inputContainer: { flexDirection: 'row', alignItems: 'center' },
-  input: {
-    flex: 1,
-    borderWidth: 1,
-    borderColor: '#ccc',
-    borderRadius: 10,
-    paddingHorizontal: 10,
-  },
-  sendButton: { backgroundColor: '#007bff', padding: 10, borderRadius: 10, marginLeft: 10 },
-  sendButtonText: { color: '#fff' },
-});

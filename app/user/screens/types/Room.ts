@@ -5,6 +5,7 @@ interface Room {
     ownerId: string;
     membersId: string[];
     date: Date;
+    description: string;
     messages: Message[];
     state: string;
   }
