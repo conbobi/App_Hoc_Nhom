@@ -61,7 +61,7 @@ export default function Home() {
           <Text style={styles.viewAllText}>Xem chi tiết</Text>
         </TouchableOpacity>
       </View>
-
+          
       {/* Nhóm */}
       <View style={styles.section}>
         <Text style={styles.sectionTitle}>Nhóm</Text>
