@@ -19,7 +19,7 @@ import UserManagement from './app/admin/screens/UserManagement';
 import AdminAcc from './app/admin/screens/AdminAcc';
 import GroupDetail from './app/admin/screens/GroupDetail';
 import EditGroup from './app/admin/screens/EditGroup';
-
+import ChiTietPhong from './app/user/screens/ChiTietPhong';
 import { RootStackParamList } from './app/user/screens/types/RootStackParamList';
 const Stack = createStackNavigator<RootStackParamList>();
 
@@ -39,6 +39,7 @@ export default function App() {
         <Stack.Screen name="DangKy" component={DangKy} options={{ headerShown: false }} />
         <Stack.Screen name="QuenMatKhau" component={QuenMatKhau} options={{ headerShown: false }} />
         <Stack.Screen name="VideoCall" component={VideoCall} options={{ headerShown: false }} />
+        <Stack.Screen name="ChiTietPhong" component={ChiTietPhong} options={{headerShown: false}} />
         {/* Các màn hình của admin */}
         <Stack.Screen name="HomeAdmin" component={HomeAdmin} options={{ headerShown: false }} />
         <Stack.Screen name="QlNhom" component={QlNhom} options={{ headerShown: false }} />

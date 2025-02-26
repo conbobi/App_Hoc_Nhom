@@ -1,3 +1,4 @@
+import { StackNavigationProp } from "@react-navigation/stack";
 import { RouteProp } from "@react-navigation/native";
 import { useNavigation } from "@react-navigation/native"; // Import navigation
 import React, { useState, useEffect } from "react";
@@ -10,9 +11,10 @@ import {
   Image,
   Alert,
   Linking,
+  Button,
 } from "react-native";
-import { RootStackParamList } from "../types/RootStackParamList";
-import Message from "../types/Message";
+import { RootStackParamList } from "../screens/types/RootStackParamList";
+import Message from "../screens/types/Message";
 import firebase from "firebase/compat/app";
 import "firebase/compat/auth";
 import "firebase/compat/firestore";
@@ -25,11 +27,12 @@ type PhongHocProps = {
 
 export default function PhongHoc({ route }: PhongHocProps) {
   const { roomId, roomName } = route.params || {};
-  const navigation = useNavigation(); // Sử dụng navigation
+  const navigation = useNavigation<StackNavigationProp<RootStackParamList>>(); // Sử dụng navigation
   const currentUserId = firebase.auth().currentUser?.uid || "";
   const [messages, setMessages] = useState<Message[]>([]);
   const [message, setMessage] = useState("");
-
+  const [Lst_files, setLst_files] = useState<string[]>([]);
+  const [lst_images, setLst_images] = useState<string[]>([]);
   useEffect(() => {
     const unsubscribe = firebase
       .firestore()
@@ -66,6 +69,13 @@ export default function PhongHoc({ route }: PhongHocProps) {
 
   const renderMessageItem = ({ item }: { item: Message }) => {
     const isCurrentUser = item.senderId === currentUserId;
+    useEffect(() => {
+      const images = messages.map((msg) => msg.image).filter(Boolean) as string[];
+      const files = messages.map((msg) => msg.file).filter(Boolean) as string[];
+      setLst_images(images);
+      setLst_files(files);
+    }, [messages]);
+    
 
     return (
       <View
@@ -86,7 +96,7 @@ export default function PhongHoc({ route }: PhongHocProps) {
           >
             {item.image && <Image source={{ uri: item.image }} style={styles.messageImage} />}
             {item.file && (
-              <TouchableOpacity onPress={() => Linking.openURL(item.file)}>
+              <TouchableOpacity onPress={() => Linking.openURL(item.file||"")}>
                 <Text style={styles.fileLinkText}>📄 {decodeURIComponent(item.file.split("/").pop() || "Tập tin")}</Text>
               </TouchableOpacity>
             )}
@@ -104,6 +114,11 @@ export default function PhongHoc({ route }: PhongHocProps) {
       <TouchableOpacity style={styles.callButton} onPress={() => navigation.navigate("VideoCall" as never)}>
         <Text style={styles.callButtonText}>📞 Call</Text>
       </TouchableOpacity>
+      <Button 
+  title="Xem Chi Tiết Phòng" 
+  onPress={() => navigation.navigate("ChiTietPhong", { roomId, roomName, ownerId: currentUserId, files: Lst_files, images: lst_images })}
+/>
+
 
       <Text style={styles.roomTitle}>{roomName}</Text>
       <FlatList
