@@ -108,7 +108,7 @@ export default function PhongHoc({ route }: PhongHocProps) {
       </TouchableOpacity>
       <Button 
   title="Xem Chi Tiết Phòng" 
-  onPress={() => navigation.navigate("ChiTietPhong", { roomId, roomName, ownerId: currentUserId })}
+  onPress={() => navigation.navigate("ChiTietPhong", { roomId, roomName, ownerId: currentUserId, files: [], images: [] })}
 />
 
 

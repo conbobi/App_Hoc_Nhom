@@ -29,7 +29,6 @@ export default function DanhSachPhong() {
   const [userId, setUserId] = useState('');
   const [nextRoomId, setNextRoomId] = useState(0);
   const [activeTab, setActiveTab] = useState<'owner' | 'member'>('owner');
-
   useEffect(() => {
     const fetchUserId = async () => {
       const user = firebase.auth().currentUser;
@@ -58,7 +57,7 @@ export default function DanhSachPhong() {
   }, [userId]);
 
   const handleCopyLink = (roomId: string) => {
-    const roomLink = `https://yourapp.com/join/${roomId}`;
+    const roomLink = `${roomId}`;
     Clipboard.setStringAsync(roomLink);
     Alert.alert('Đã sao chép', 'Link tham gia phòng đã được sao chép vào clipboard!');
   };
@@ -120,12 +119,19 @@ export default function DanhSachPhong() {
 
   const renderRoomItem = ({ item }: { item: Room }) => (
     <View style={styles.roomItemContainer}>
-      <TouchableOpacity
-        style={styles.roomItem}
-        onPress={() => navigation.navigate('PhongHoc', { roomId: item.id, roomName: item.name, ownerId: item.ownerId })}
-      >
-        <Text style={styles.roomName}>{item.name}</Text>
-      </TouchableOpacity>
+    <TouchableOpacity
+  style={styles.roomItem}
+  onPress={() => navigation.navigate('PhongHoc', { 
+    roomId: item.id, 
+    roomName: item.name, 
+    ownerId: item.ownerId, 
+    membersId: item.membersId
+  })}
+>
+  <Text style={styles.roomName}>{item.name}</Text>
+</TouchableOpacity>
+
+
       {item.ownerId === userId && (
         <TouchableOpacity style={styles.copyButton} onPress={() => handleCopyLink(item.id)}>
           <Text style={styles.buttonText}>📋 Link</Text>

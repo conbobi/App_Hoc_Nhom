@@ -1,5 +1,5 @@
 import React from "react";
-import { View, Text, Image, FlatList, StyleSheet, TouchableOpacity } from "react-native";
+import { View, Text, Image, FlatList, StyleSheet, TouchableOpacity, Linking } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { RouteProp, useRoute } from "@react-navigation/native";
 import { StackNavigationProp } from "@react-navigation/stack";
@@ -11,63 +11,48 @@ type ChiTietPhongScreenRouteProp = RouteProp<RootStackParamList, "ChiTietPhong">
 const ChiTietPhong = () => {
   const navigation = useNavigation<ChiTietPhongScreenNavigationProp>();
   const route = useRoute<ChiTietPhongScreenRouteProp>(); // Lấy dữ liệu từ navigation
-  const { roomId, roomName, ownerId } = route.params; 
-  const danhSachNhom = [
-    { id: "1", ten: "Nhóm 1", soLuong: 5 },
-    { id: "2", ten: "Nhóm 2", soLuong: 8 },
-    { id: "3", ten: "Nhóm 3", soLuong: 3 },
-  ];
-
-  const danhSachFiles = [
-    { id: "1", ten: "Tài liệu 1.pdf" },
-    { id: "2", ten: "Slide bài giảng.pptx" },
-  ];
-
-  const danhSachAnh = [
-    { id: "1", url: "https://via.placeholder.com/150" },
-    { id: "2", url: "https://via.placeholder.com/150" },
-  ];
+  const { roomId, roomName, ownerId, files, images } = route.params; 
 
   return (
     <View style={styles.container}>
       {/* Tên phòng và ảnh */}
-      <Text style={styles.title}>Tên Phòng: Phòng Học 101</Text>
+      <Text style={styles.title}>Tên Phòng: {roomName}</Text>
       <Image source={{ uri: "https://via.placeholder.com/300" }} style={styles.roomImage} />
 
       {/* Danh sách nhóm */}
       <Text style={styles.sectionTitle}>Danh Sách Nhóm</Text>
-      <FlatList
-        data={danhSachNhom}
-        keyExtractor={(item) => item.id}
-        renderItem={({ item }) => (
+     
           <View style={styles.groupItem}>
-            <Text>{item.ten} - {item.soLuong} người</Text>
+           
           </View>
-        )}
-      />
+
 
       {/* Danh sách file đã gửi */}
-      <Text style={styles.sectionTitle}>Tệp Đã Gửi</Text>
-      <FlatList
-        data={danhSachFiles}
-        keyExtractor={(item) => item.id}
-        renderItem={({ item }) => (
-          <View style={styles.fileItem}>
-            <Text>{item.ten}</Text>
-          </View>
-        )}
-      />
+     {/* Danh sách file đã gửi */}
+<Text style={styles.sectionTitle}>Tệp Đã Gửi</Text>
+{files.length > 0 ? (
+  files.map((file, index) => (
+    <TouchableOpacity key={index} onPress={() => Linking.openURL(file)}>
+      <Text style={styles.fileItem}>📄 {decodeURIComponent(file.split("/").pop() || "Tệp tin")}</Text>
+    </TouchableOpacity>
+  ))
+) : (
+  <Text>Không có tệp tin nào</Text>
+)}
 
-      {/* Danh sách ảnh đã gửi */}
-      <Text style={styles.sectionTitle}>Ảnh Đã Gửi</Text>
-      <FlatList
-        horizontal
-        data={danhSachAnh}
-        keyExtractor={(item) => item.id}
-        renderItem={({ item }) => (
-          <Image source={{ uri: item.url }} style={styles.image} />
-        )}
-      />
+{/* Danh sách ảnh đã gửi */}
+<Text style={styles.sectionTitle}>Ảnh Đã Gửi</Text>
+{images.length > 0 ? (
+  <FlatList
+    data={images}
+    keyExtractor={(item, index) => index.toString()}
+    horizontal
+    renderItem={({ item }) => <Image source={{ uri: item }} style={styles.image} />}
+  />
+) : (
+  <Text>Không có hình ảnh nào</Text>
+)}
+
 
       {/* Nút quay lại */}
       <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
