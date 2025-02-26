@@ -31,7 +31,8 @@ export default function PhongHoc({ route }: PhongHocProps) {
   const currentUserId = firebase.auth().currentUser?.uid || "";
   const [messages, setMessages] = useState<Message[]>([]);
   const [message, setMessage] = useState("");
-
+  const [Lst_files, setLst_files] = useState<string[]>([]);
+  const [lst_images, setLst_images] = useState<string[]>([]);
   useEffect(() => {
     const unsubscribe = firebase
       .firestore()
@@ -68,6 +69,13 @@ export default function PhongHoc({ route }: PhongHocProps) {
 
   const renderMessageItem = ({ item }: { item: Message }) => {
     const isCurrentUser = item.senderId === currentUserId;
+    useEffect(() => {
+      const images = messages.map((msg) => msg.image).filter(Boolean) as string[];
+      const files = messages.map((msg) => msg.file).filter(Boolean) as string[];
+      setLst_images(images);
+      setLst_files(files);
+    }, [messages]);
+    
 
     return (
       <View
@@ -108,7 +116,7 @@ export default function PhongHoc({ route }: PhongHocProps) {
       </TouchableOpacity>
       <Button 
   title="Xem Chi Tiết Phòng" 
-  onPress={() => navigation.navigate("ChiTietPhong", { roomId, roomName, ownerId: currentUserId, files: [], images: [] })}
+  onPress={() => navigation.navigate("ChiTietPhong", { roomId, roomName, ownerId: currentUserId, files: Lst_files, images: lst_images })}
 />
 
 

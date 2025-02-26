@@ -40,18 +40,26 @@ const ChiTietPhong = () => {
   <Text>Không có tệp tin nào</Text>
 )}
 
+
 {/* Danh sách ảnh đã gửi */}
 <Text style={styles.sectionTitle}>Ảnh Đã Gửi</Text>
-{images.length > 0 ? (
+{images && images.length > 0 ? (
   <FlatList
     data={images}
     keyExtractor={(item, index) => index.toString()}
     horizontal
-    renderItem={({ item }) => <Image source={{ uri: item }} style={styles.image} />}
+    renderItem={({ item }) =>
+      item ? (
+        <Image source={{ uri: item }} style={styles.image} />
+      ) : (
+        <Text>Ảnh không hợp lệ</Text>
+      )
+    }
   />
 ) : (
   <Text>Không có hình ảnh nào</Text>
 )}
+
 
 
       {/* Nút quay lại */}
