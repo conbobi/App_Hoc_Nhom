@@ -47,6 +47,15 @@ export default function PhongHoc({ route }: PhongHocProps) {
     return () => unsubscribe();
   }, [roomId]);
 
+  useEffect(() => {
+    const images = messages.map((msg) => msg.image).filter(Boolean) as string[];
+    const files = messages.map((msg) => msg.file).filter(Boolean) as string[];
+    setLst_images(images);
+    setLst_files(files);
+  }, [messages]);
+  
+
+
   const handleSend = async () => {
     if (!message.trim()) return;
 
@@ -69,14 +78,6 @@ export default function PhongHoc({ route }: PhongHocProps) {
 
   const renderMessageItem = ({ item }: { item: Message }) => {
     const isCurrentUser = item.senderId === currentUserId;
-    useEffect(() => {
-      const images = messages.map((msg) => msg.image).filter(Boolean) as string[];
-      const files = messages.map((msg) => msg.file).filter(Boolean) as string[];
-      setLst_images(images);
-      setLst_files(files);
-    }, [messages]);
-    
-
     return (
       <View
         style={[
