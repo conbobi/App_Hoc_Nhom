@@ -11,8 +11,8 @@ import {
   Alert,
   Linking,
 } from "react-native";
-import { RootStackParamList } from "../types/RootStackParamList";
-import Message from "../types/Message";
+import { RootStackParamList } from "../screens/types/RootStackParamList";
+import Message from "../screens/types/Message";
 import firebase from "firebase/compat/app";
 import "firebase/compat/auth";
 import "firebase/compat/firestore";
