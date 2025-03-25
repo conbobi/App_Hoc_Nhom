@@ -90,5 +90,10 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginTop: 8,
   },
+  tabButton: {
+    padding: 10,
+    borderBottomWidth: 2,
+    borderBottomColor: 'transparent',
+  },
   });
 export default styles;

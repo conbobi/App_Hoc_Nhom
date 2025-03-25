@@ -29,6 +29,7 @@ export default function DanhSachPhong() {
   const [userId, setUserId] = useState('');
   const [nextRoomId, setNextRoomId] = useState(0);
   const [activeTab, setActiveTab] = useState<'owner' | 'member'>('owner');
+
   useEffect(() => {
     const fetchUserId = async () => {
       const user = firebase.auth().currentUser;
@@ -57,8 +58,7 @@ export default function DanhSachPhong() {
   }, [userId]);
 
   const handleCopyLink = (roomId: string) => {
-    const roomLink = `${roomId}`;
-    Clipboard.setStringAsync(roomLink);
+    Clipboard.setStringAsync(roomId);
     Alert.alert('Đã sao chép', 'Link tham gia phòng đã được sao chép vào clipboard!');
   };
 
@@ -119,19 +119,17 @@ export default function DanhSachPhong() {
 
   const renderRoomItem = ({ item }: { item: Room }) => (
     <View style={styles.roomItemContainer}>
-    <TouchableOpacity
-  style={styles.roomItem}
-  onPress={() => navigation.navigate('PhongHoc', { 
-    roomId: item.id, 
-    roomName: item.name, 
-    ownerId: item.ownerId, 
-    membersId: item.membersId
-  })}
->
-  <Text style={styles.roomName}>{item.name}</Text>
-</TouchableOpacity>
-
-
+      <TouchableOpacity
+        style={styles.roomItem}
+        onPress={() => navigation.navigate('PhongHoc', { 
+          roomId: item.id, 
+          roomName: item.name, 
+          ownerId: item.ownerId, 
+          membersId: item.membersId
+        })}
+      >
+        <Text style={styles.roomName}>{item.name}</Text>
+      </TouchableOpacity>
       {item.ownerId === userId && (
         <TouchableOpacity style={styles.copyButton} onPress={() => handleCopyLink(item.id)}>
           <Text style={styles.buttonText}>📋 Link</Text>
@@ -144,12 +142,32 @@ export default function DanhSachPhong() {
     <Layout>
       <View style={styles.container}>
         <Text style={styles.header}>Danh sách phòng học</Text>
+
+        {/* Tabs */}
+        <View style={styles.tabContainer}>
+          <TouchableOpacity 
+            style={[styles.tabButton, activeTab === 'owner' && styles.activeTab]} 
+            onPress={() => setActiveTab('owner')}
+          >
+            <Text style={styles.tabText}>Phòng của tôi</Text>
+          </TouchableOpacity>
+          <TouchableOpacity 
+            style={[styles.tabButton, activeTab === 'member' && styles.activeTab]} 
+            onPress={() => setActiveTab('member')}
+          >
+            <Text style={styles.tabText}>Phòng đã tham gia</Text>
+          </TouchableOpacity>
+        </View>
+
+        {/* Hiển thị danh sách phòng theo tab */}
         <FlatList
           data={activeTab === 'owner' ? rooms.filter(room => room.ownerId === userId) : rooms.filter(room => room.ownerId !== userId)}
           keyExtractor={(item) => item.id}
           renderItem={renderRoomItem}
           style={styles.roomList}
         />
+
+        {/* Form tạo phòng & tham gia phòng */}
         <View style={styles.actionContainer}>
           <TextInput style={styles.input} placeholder="Tên phòng mới" value={roomName} onChangeText={setRoomName} />
           <TouchableOpacity style={styles.createButton} onPress={handleCreateRoom}>

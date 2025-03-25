@@ -11,7 +11,7 @@ type ChiTietPhongScreenRouteProp = RouteProp<RootStackParamList, "ChiTietPhong">
 const ChiTietPhong = () => {
   const navigation = useNavigation<ChiTietPhongScreenNavigationProp>();
   const route = useRoute<ChiTietPhongScreenRouteProp>(); // Lấy dữ liệu từ navigation
-  const { roomId, roomName, ownerId, files, images } = route.params; 
+  const { roomId, roomName, ownerId, files, images, TotalMembers } = route.params; 
 
   return (
     <View style={styles.container}>
@@ -26,7 +26,7 @@ const ChiTietPhong = () => {
            
           </View>
 
-
+                <Text>{TotalMembers}</Text>
       {/* Danh sách file đã gửi */}
      {/* Danh sách file đã gửi */}
 <Text style={styles.sectionTitle}>Tệp Đã Gửi</Text>
