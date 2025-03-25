@@ -33,6 +33,7 @@ export default function PhongHoc({ route }: PhongHocProps) {
   const [message, setMessage] = useState("");
   const [Lst_files, setLst_files] = useState<string[]>([]);
   const [lst_images, setLst_images] = useState<string[]>([]);
+  const [totalMembers, setTotalMembers] = useState(0);
   useEffect(() => {
     const unsubscribe = firebase
       .firestore()
@@ -42,7 +43,9 @@ export default function PhongHoc({ route }: PhongHocProps) {
       .orderBy("timestamp", "asc")
       .onSnapshot((snapshot) => {
         setMessages(snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() })) as Message[]);
-      });
+      }
+      
+    );
 
     return () => unsubscribe();
   }, [roomId]);
@@ -54,7 +57,20 @@ export default function PhongHoc({ route }: PhongHocProps) {
     setLst_files(files);
   }, [messages]);
   
-
+  console.log("tong so nguoi"+totalMembers);
+  // tổng số thành viên
+  useEffect(() => {
+    const unsubscribe = firebase
+      .firestore()
+      .collection("rooms")
+      .doc(roomId)
+      .collection("members") // Giả sử mỗi thành viên được lưu tại đây
+      .onSnapshot((snapshot) => {
+        setTotalMembers(snapshot.size); // Lấy tổng số thành viên
+      });
+  console.log(totalMembers);
+    return () => unsubscribe();
+  }, [roomId]);
 
   const handleSend = async () => {
     if (!message.trim()) return;
@@ -73,6 +89,20 @@ export default function PhongHoc({ route }: PhongHocProps) {
     };
 
     await firebase.firestore().collection("rooms").doc(roomId).collection("messages").add(newMessage);
+     // **Thêm thông báo mới vào Firestore**
+  const notification = {
+    id: firebase.firestore().collection("notifications").doc().id,
+    type: "group",
+    title: `Tin nhắn mới từ ${userData?.fullName || "Unknown"}`,
+    content: message,
+    sender: { id: user?.uid, name: userData?.fullName || "Unknown", avatar: userData?.avatarUri || "" },
+    state: "unread",
+    timestamp: firebase.firestore.Timestamp.now(),
+    roomId: roomId,
+    roomName: roomName
+  };
+
+  await firebase.firestore().collection("notifications").doc(notification.id).set(notification);
     setMessage("");
   };
 
@@ -117,7 +147,7 @@ export default function PhongHoc({ route }: PhongHocProps) {
       </TouchableOpacity>
       <Button 
   title="Xem Chi Tiết Phòng" 
-  onPress={() => navigation.navigate("ChiTietPhong", { roomId, roomName, ownerId: currentUserId, files: Lst_files, images: lst_images })}
+  onPress={() => navigation.navigate("ChiTietPhong", { roomId, roomName, ownerId: currentUserId, files: Lst_files, images: lst_images, TotalMembers: totalMembers })}
 />
 
 
