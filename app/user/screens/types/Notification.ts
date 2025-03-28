@@ -1,14 +1,14 @@
 import Message from "./Message";
-import userData from "./UserData";
+import UserData from "./UserData";
 import Room from "./Room";
 interface Notification {
     id: string;
     type: 'admin' | 'group' | 'user' | 'system'; // Loại thông báo
     title: string;
     content: Message;
-    sender?: userData; // ID người gửi (nếu có)
+    sender?: UserData; // ID người gửi (nếu có)
     state: string;
-    userData: userData;
+    UserData: UserData;
     room: Room;
 }
 export default Notification;
