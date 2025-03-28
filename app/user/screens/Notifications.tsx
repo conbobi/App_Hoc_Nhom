@@ -4,7 +4,7 @@ import firebase from "firebase/compat/app";
 import "firebase/compat/firestore";
 import Notification from "./types/Notification";
 import Message from "./types/Message";
-import userData from "./types/UserData";
+import UserData from "./types/UserData";
 import Room from "./types/Room";
 
 const NotificationScreen = () => {
@@ -48,9 +48,9 @@ const NotificationScreen = () => {
           senderName: "Admin",
           timestamp: firebase.firestore.Timestamp.now()
         },
-        sender: userDoc.data() as userData,
+        sender: userDoc.data() as UserData,
         state: "unread",
-        userData: userDoc.data() as userData,
+        UserData: userDoc.data() as UserData,
         room: roomDoc.data() as Room
       };
 

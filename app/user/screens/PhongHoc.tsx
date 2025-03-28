@@ -77,14 +77,14 @@ export default function PhongHoc({ route }: PhongHocProps) {
 
     const user = firebase.auth().currentUser;
     const userDoc = await firebase.firestore().collection("users").doc(user?.uid).get();
-    const userData = userDoc.data();
+    const UserData = userDoc.data();
 
     const newMessage: Message = {
       id: Date.now().toString(),
       content: message,
       senderId: currentUserId,
-      senderName: userData?.fullName || "Unknown",
-      senderAvatar: userData?.avatarUri || "",
+      senderName: UserData?.fullName || "Unknown",
+      senderAvatar: UserData?.avatarUri || "",
       timestamp: firebase.firestore.Timestamp.now(),
     };
 
@@ -93,9 +93,9 @@ export default function PhongHoc({ route }: PhongHocProps) {
   const notification = {
     id: firebase.firestore().collection("notifications").doc().id,
     type: "group",
-    title: `Tin nhắn mới từ ${userData?.fullName || "Unknown"}`,
+    title: `Tin nhắn mới từ ${UserData?.fullName || "Unknown"}`,
     content: message,
-    sender: { id: user?.uid, name: userData?.fullName || "Unknown", avatar: userData?.avatarUri || "" },
+    sender: { id: user?.uid, name: UserData?.fullName || "Unknown", avatar: UserData?.avatarUri || "" },
     state: "unread",
     timestamp: firebase.firestore.Timestamp.now(),
     roomId: roomId,

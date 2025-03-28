@@ -31,7 +31,7 @@ export default function DangKy() {
   const [role, setRole] = useState('');
   const navigation = useNavigation<DangKyScreenNavigationProp>();
   const handelDangNhap = async () => {
-    navigation.navigate('DangNhap', { userData: { fullName, email, role } });
+    navigation.navigate('DangNhap', { UserData: { fullName, email, role } });
   }
   const handleDangKy = async () => {
     if (!fullName || !email || !password || !role) {
@@ -66,7 +66,7 @@ export default function DangKy() {
 
     Alert.alert('Thành công', 'Đăng ký thành công!');
 
-      navigation.navigate('DangNhap', { userData: { fullName, email, role } }); // Chuyển đến màn hình đăng nhập
+      navigation.navigate('DangNhap', { UserData: { fullName, email, role } }); // Chuyển đến màn hình đăng nhập
     } catch (error) {
       Alert.alert('Lỗi', (error as any).message || 'Đăng ký thất bại!');
     }
