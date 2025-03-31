@@ -14,6 +14,7 @@ import QuenMatKhau from './app/user/screens/QuenMatKhau';
 import VideoCall from './app/user/components/VideoCall';
 import ChatScreen from './app/user/screens/ChatScreen';
 import MessageAllUser from './app/user/screens/MessageAllUser';
+import UserOther from './app/user/screens/UserOther';
 // admin
 import HomeAdmin from './app/admin/screens/HomeAdmin';
 import QlNhom from './app/admin/screens/QlNhom';
@@ -44,6 +45,7 @@ export default function App() {
         <Stack.Screen name="ChiTietPhong" component={ChiTietPhong} options={{headerShown: false}} />
         <Stack.Screen name="ChatScreen" component={ChatScreen} options={{headerShown: false}} />
         <Stack.Screen name="MessageAllUser" component={MessageAllUser} options={{headerShown: false}} />
+        <Stack.Screen name="UserOther" component={UserOther} options={{headerShown: false}} />
         {/* Các màn hình của admin */}
         <Stack.Screen name="HomeAdmin" component={HomeAdmin} options={{ headerShown: false }} />
         <Stack.Screen name="QlNhom" component={QlNhom} options={{ headerShown: false }} />

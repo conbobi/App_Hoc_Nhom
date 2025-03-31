@@ -38,4 +38,5 @@ export type RootStackParamList = {
   VideoCall: undefined;
   MessageAllUser: { currentUser: UserData }; // Cần chắc chắn UserData đã được khai báo
   ChatScreen: { senderData: UserData; receiverId: string }; // Đảm bảo senderData có kiểu UserData
+  UserOther: { user: UserData }; // Đảm bảo user có kiểu UserData
 };
