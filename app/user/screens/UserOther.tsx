@@ -11,7 +11,7 @@ type UserOtherRouteProp = RouteProp<RootStackParamList, 'UserOther'>;
 
 const UserOther: React.FC = () => {
   const route = useRoute<UserOtherRouteProp>();
-  const { user } = route.params as { user: UserData };
+  const { userId } = route.params as { userId: string };
   const [isFriend, setIsFriend] = useState(false);
   const [userData, setUserData] = useState<UserData | null>(null);
   const currentUserId = firebase.auth().currentUser?.uid;
@@ -19,7 +19,7 @@ const UserOther: React.FC = () => {
   useEffect(() => {
     const fetchUserData = async () => {
       try {
-        const userDoc = await firebase.firestore().collection('users').doc(user.id).get();
+        const userDoc = await firebase.firestore().collection('users').doc(userId).get();
         if (userDoc.exists) {
           setUserData(userDoc.data() as UserData);
         }
@@ -30,17 +30,14 @@ const UserOther: React.FC = () => {
 
     const checkFriendStatus = async () => {
       const userFriendRef = firebase.firestore().collection('ListFriend').doc(currentUserId);
-      const recipientFriendRef = firebase.firestore().collection('ListFriend').doc(user.id);
+      const recipientFriendRef = firebase.firestore().collection('ListFriend').doc(userId);
 
       await userFriendRef.set({
         Friends: firebase.firestore.FieldValue.arrayUnion({
-          id: user.id,
-          email: user.email,
-          fullName: user.fullName,
-          avatarUri: user.avatarUri,
+          id: userId
         })
       }, { merge: true });
-
+ 
       await recipientFriendRef.set({
         Friends: firebase.firestore.FieldValue.arrayUnion({
           id: currentUserId,
@@ -54,7 +51,7 @@ const UserOther: React.FC = () => {
 
     fetchUserData();
     checkFriendStatus();
-  }, [user.id, currentUserId]);
+  }, [userId, currentUserId]);
 
   const sendFriendRequest = async () => {
     if (!currentUserId) return;
@@ -65,11 +62,7 @@ const UserOther: React.FC = () => {
         // SenderPhone: userData?.phone,
         SenderName: userData?.fullName,
         SenderAvatar: userData?.avatarUri,
-        RecipterID: user.id,
-        RecipterEmail: user.email,
-        // RecipterPhone: user?.phone,
-        RecipterName: user.fullName,
-        RecipterAvatar: user?.avatarUri,
+        RecipterID: userId,
         Accept: false,
       });
       console.log('Đã gửi lời mời kết bạn');
@@ -86,7 +79,7 @@ const UserOther: React.FC = () => {
 
       if (friendListDoc.exists) {
         const friends = friendListDoc.data()?.Friends || [];
-        const updatedFriends = friends.filter((friendId: string) => friendId !== user.id);
+        const updatedFriends = friends.filter((friendId: string) => friendId !== userId);
         await friendListRef.update({ Friends: updatedFriends });
       }
       setIsFriend(false);

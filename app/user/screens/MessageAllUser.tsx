@@ -16,6 +16,7 @@ interface FriendRequest {
   RecipterID: string;
 }
 
+
 const MessageAllUserData = () => {
   const navigation: NavigationProp<RootStackParamList> = useNavigation();
   const [currentUserData, setCurrentUserData] = useState<UserData | null>(null);
@@ -120,7 +121,9 @@ const MessageAllUserData = () => {
       console.error("Lỗi khi chấp nhận kết bạn:", error);
     }
   };
-
+  const goToUserProfile = (userId: string) => {
+    navigation.navigate("UserOther", { userId });
+  };
   return (
     <Tab.Navigator>
       <Tab.Screen name="Bạn bè">
@@ -135,16 +138,19 @@ const MessageAllUserData = () => {
           <TouchableOpacity style={styles.searchButton} onPress={searchUserDataByFullName}>
             <Text style={styles.buttonText}>Tìm kiếm</Text>
           </TouchableOpacity>
-          <FlatList
-            data={searchResults}
-            keyExtractor={(item) => item.id}
-            renderItem={({ item } ) => (
-              <TouchableOpacity style={styles.UserDataItem} onPress={() => navigation.navigate("UserOther", { user: item }) }>
-                <Image source={{ uri: item.avatarUri }} style={styles.avatar} />
-                <Text style={styles.UserDataName}>{item.fullName}</Text>
-              </TouchableOpacity>
-            )}
-          />
+          // Trong FlatList, thay vì chỉ hiển thị tên, thêm TouchableOpacity để mở hồ sơ
+<FlatList
+  data={searchResults}
+  keyExtractor={(item) => item.id}
+  renderItem={({ item }) => (
+    <TouchableOpacity onPress={() => goToUserProfile(item.id)}>
+      <View style={styles.friendItem}>
+        <Image source={{ uri: item.avatarUri }} style={styles.avatar} />
+        <Text>{item.fullName}</Text>
+      </View>
+    </TouchableOpacity>
+  )}
+/>
         </View>
         )}
       </Tab.Screen>
@@ -156,14 +162,17 @@ const MessageAllUserData = () => {
               <Text>Tìm</Text>
             </TouchableOpacity>
             <FlatList
-              data={searchResults}
-              keyExtractor={(item) => item.id}
-              renderItem={({ item }) => (
-                <TouchableOpacity onPress={() => navigation.navigate("UserOther", { user: item } as UserData)}>
-                  <Text>{item.fullName}</Text>
-                </TouchableOpacity>
-              )}
-            />
+  data={searchResults}
+  keyExtractor={(item) => item.id}
+  renderItem={({ item }) => (
+    <TouchableOpacity onPress={() => goToUserProfile(item.id)}>
+      <View style={styles.friendItem}>
+        <Image source={{ uri: item.avatarUri }} style={styles.avatar} />
+        <Text>{item.fullName}</Text>
+      </View>
+    </TouchableOpacity>
+  )}
+/>
           </View>
         )}
       </Tab.Screen>
@@ -199,6 +208,7 @@ const styles = StyleSheet.create({
   UserDataItem: { flexDirection: "row", alignItems: "center", padding: 10, borderBottomWidth: 1, borderColor: "#ddd" },
   avatar: { width: 40, height: 40, borderRadius: 20, marginRight: 10 },
   UserDataName: { fontSize: 16, fontWeight: "bold" },
+  friendItem: { flexDirection: "row", alignItems: "center", padding: 10, borderBottomWidth: 1, borderColor: "#ddd" },
 });
 
 export default MessageAllUserData;
