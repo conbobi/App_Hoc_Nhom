@@ -49,6 +49,7 @@ export default function DangKy() {
         fullName,
         email,
         role,
+        password, // lưu mật khẩu trên firebase
       });
 
     // **Thêm thông báo đăng ký thành công vào Firestore**

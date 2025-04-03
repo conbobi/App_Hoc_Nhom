@@ -12,9 +12,7 @@ import DanhSachPhong from './app/user/screens/DanhSachPhong';
 import UserFooter from './app/user/components/UserFooter';
 import QuenMatKhau from './app/user/screens/QuenMatKhau';
 import VideoCall from './app/user/components/VideoCall';
-import ChatScreen from './app/user/screens/ChatScreen';
-import MessageAllUser from './app/user/screens/MessageAllUser';
-import UserOther from './app/user/screens/UserOther';
+
 // admin
 import HomeAdmin from './app/admin/screens/HomeAdmin';
 import QlNhom from './app/admin/screens/QlNhom';
@@ -31,10 +29,10 @@ export default function App() {
     <NavigationContainer>
       <Stack.Navigator initialRouteName="DangNhap">
         {/* Các màn hình của người dùng */}
-        <Stack.Screen name="Home" component={Home} options={{headerShown: false}}/>
+        <Stack.Screen name="Home" component={Home} options={{ headerShown: false }} />
         <Stack.Screen name="NhiemVu" component={NhiemVu} />
         <Stack.Screen name="Notifications" component={Notifications} />
-        <Stack.Screen name="DanhSachPhong" component={DanhSachPhong} options={{headerShown:false}} />
+        <Stack.Screen name="DanhSachPhong" component={DanhSachPhong} options={{ headerShown: false }} />
         <Stack.Screen name="PhongHoc" component={PhongHoc} />
         <Stack.Screen name="Profile" component={Profile} />
         <Stack.Screen name="UserFooter" component={UserFooter} />
@@ -42,10 +40,7 @@ export default function App() {
         <Stack.Screen name="DangKy" component={DangKy} options={{ headerShown: false }} />
         <Stack.Screen name="QuenMatKhau" component={QuenMatKhau} options={{ headerShown: false }} />
         <Stack.Screen name="VideoCall" component={VideoCall} options={{ headerShown: false }} />
-        <Stack.Screen name="ChiTietPhong" component={ChiTietPhong} options={{headerShown: false}} />
-        <Stack.Screen name="ChatScreen" component={ChatScreen} options={{headerShown: false}} />
-        <Stack.Screen name="MessageAllUser" component={MessageAllUser} options={{headerShown: false}} />
-        <Stack.Screen name="UserOther" component={UserOther} options={{headerShown: false}} />
+
 
         {/* Các màn hình của admin */}
         <Stack.Screen name="HomeAdmin" component={HomeAdmin} options={{ headerShown: false }} />
