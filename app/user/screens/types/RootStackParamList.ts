@@ -25,6 +25,7 @@ export type RootStackParamList = {
   // user
   Home: { userData: { id: string; fullName: string; email: string; password: string; role: string; avatarUri?: string  } };
   NhiemVu: { userData: { id: string; fullName: string; email: string; password: string; role: string; avatarUri?: string  } };
+  TaskDetail: { taskId: string }; // Màn hình chi tiết nhiệm vụ với tham số taskId
   Notifications: { userData: { id: string; fullName: string; email: string; password: string; role: string; avatarUri?: string  } };
   DanhSachPhong: { userData: { id: number; fullName: string; email: string; password: string; role: string; avatarUri?: string  } };
   UserFooter: { userData: { id: number; fullName: string; email: string; password: string; role: string; avatarUri?: string  } };

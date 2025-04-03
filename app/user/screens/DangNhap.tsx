@@ -66,7 +66,7 @@ export default function DangNhap() {
           Alert.alert('Lỗi', 'Sai mật khẩu. Vui lòng thử lại.');
           break;
         default:
-          Alert.alert('Lỗi', 'Đăng nhập thất bại. Vui lòng thử lại sau.');
+          Alert.alert('Lỗi', 'Đăng nhập thất bại do sự cố. Vui lòng thử lại sau.');
           break;
       }
     }
