@@ -31,7 +31,7 @@ export default function DangKy() {
   const [role, setRole] = useState('');
   const navigation = useNavigation<DangKyScreenNavigationProp>();
   const handelDangNhap = async () => {
-    navigation.navigate('DangNhap', { userData: { fullName, email, role } });
+    navigation.navigate('DangNhap', { UserData: { fullName, email, role } });
   }
   const handleDangKy = async () => {
     if (!fullName || !email || !password || !role) {
@@ -52,8 +52,22 @@ export default function DangKy() {
         password, // lưu mật khẩu trên firebase
       });
 
-      Alert.alert('Thành công', 'Đăng ký thành công!');
-      navigation.navigate('DangNhap', { userData: { fullName, email, role } }); // Chuyển đến màn hình đăng nhập
+    // **Thêm thông báo đăng ký thành công vào Firestore**
+    const notification = {
+      id: firebase.firestore().collection("notifications").doc().id,
+      type: "system",
+      title: "Chào mừng thành viên mới!",
+      content: `${fullName} vừa đăng ký tài khoản.`,
+      sender: { id: user?.uid, name: fullName },
+      state: "unread",
+      timestamp: firebase.firestore.Timestamp.now()
+    };
+
+    await firebase.firestore().collection("notifications").doc(notification.id).set(notification);
+
+    Alert.alert('Thành công', 'Đăng ký thành công!');
+
+      navigation.navigate('DangNhap', { UserData: { fullName, email, role } }); // Chuyển đến màn hình đăng nhập
     } catch (error) {
       Alert.alert('Lỗi', (error as any).message || 'Đăng ký thất bại!');
     }

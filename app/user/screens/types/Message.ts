@@ -1,3 +1,4 @@
+import firebase from "firebase/compat/app";
 interface Message {
   id: string;
   content: string;
@@ -6,6 +7,7 @@ interface Message {
   senderId: string;
   senderName: string;
   senderAvatar?: string;
-  timestamp: firebase.default.firestore.Timestamp;
+  receiverId?: string;
+  timestamp: firebase.firestore.Timestamp;
 }
 export default Message;

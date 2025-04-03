@@ -36,13 +36,13 @@ type ProfileScreenNavigationProp = StackNavigationProp<RootStackParamList, 'Prof
 export default function Profile() {
   const route = useRoute<ProfileRouteProp>();
   const navigation = useNavigation<ProfileScreenNavigationProp>();
-  const { userData } = route.params || {}; // Nhận dữ liệu người dùng từ tham số điều hướng
+  const { UserData } = route.params || {}; // Nhận dữ liệu người dùng từ tham số điều hướng
 
-  const [avatarUri, setAvatarUri] = useState(userData.avatarUri || '');
+  const [avatarUri, setAvatarUri] = useState(UserData.avatarUri || '');
   const [loading, setLoading] = useState(false);
 
   // Nếu không có thông tin người dùng, hiển thị thông báo lỗi
-  if (!userData) {
+  if (!UserData) {
     return (
       <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
         <Text>Không tìm thấy thông tin người dùng.</Text>
@@ -119,7 +119,7 @@ export default function Profile() {
 
   const saveAvatarUrlToFirestore = async (imageUrl: string) => {
     try {
-      await firebase.firestore().collection('users').doc(userData.id).update({
+      await firebase.firestore().collection('users').doc(UserData.id).update({
         avatarUri: imageUrl,
       });
       Alert.alert('Thành công', 'Ảnh đại diện đã được cập nhật!');
@@ -186,28 +186,28 @@ export default function Profile() {
             <Text style={styles.label}>ID Người Dùng:</Text>
             <TextInput
               style={styles.input}
-              value={String(userData.id) || 'N/A'}
+              value={String(UserData.id) || 'N/A'}
               editable={false}
             />
 
             <Text style={styles.label}>Họ và Tên:</Text>
             <TextInput
               style={styles.input}
-              value={userData.fullName || 'N/A'}
+              value={UserData.fullName || 'N/A'}
               editable={false}
             />
 
             <Text style={styles.label}>Email:</Text>
             <TextInput
               style={styles.input}
-              value={userData.email || 'N/A'}
+              value={UserData.email || 'N/A'}
               editable={false}
             />
 
             <Text style={styles.label}>Mật Khẩu:</Text>
             <TextInput
               style={styles.input}
-              value={userData.password || '********'}
+              value={UserData.password || '********'}
               editable={false}
               secureTextEntry
             />
@@ -215,7 +215,7 @@ export default function Profile() {
             <Text style={styles.label}>Vai Trò:</Text>
             <TextInput
               style={styles.input}
-              value={userData.role || 'N/A'}
+              value={UserData.role || 'N/A'}
               editable={false}
             />
           </View>

@@ -24,7 +24,7 @@ export default function QuenMatKhau() {
       Alert.alert(
         'Thành công',
         'Một email đặt lại mật khẩu đã được gửi đến địa chỉ email của bạn.',
-        [{ text: 'OK', onPress: () => navigation.navigate('DangNhap', { userData: {} }) }]
+        [{ text: 'OK', onPress: () => navigation.navigate('DangNhap', { UserData: {} }) }]
       );
     } catch (error: any) {
       switch (error.code) {
@@ -58,7 +58,7 @@ export default function QuenMatKhau() {
       <TouchableOpacity style={styles.button} onPress={handleQuenMatKhau}>
         <Text style={styles.buttonText}>Gửi</Text>
       </TouchableOpacity>
-      <TouchableOpacity onPress={() => navigation.navigate('DangNhap', { userData: {} })}>
+      <TouchableOpacity onPress={() => navigation.navigate('DangNhap', { UserData: {} })}>
         <Text style={styles.backToLoginText}>Quay lại đăng nhập</Text>
       </TouchableOpacity>
     </View>

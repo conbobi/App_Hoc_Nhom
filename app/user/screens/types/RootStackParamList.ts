@@ -1,5 +1,6 @@
 import { NavigatorScreenParams } from '@react-navigation/native';
-
+import UserData from './UserData';
+import ChatScreen from '../ChatScreen';
 export type RootStackParamList = {
   // admin
   AdminDashboard: undefined;
@@ -23,16 +24,12 @@ export type RootStackParamList = {
   AdminAcc: undefined;
   HomeAdmin: undefined;
   // user
-  Home: { userData: { id: string; fullName: string; email: string; password: string; role: string; avatarUri?: string  } };
-  NhiemVu: { userData: { id: string; fullName: string; email: string; password: string; role: string; avatarUri?: string  } };
-  TaskDetail: { taskId: string }; // Màn hình chi tiết nhiệm vụ với tham số taskId
-  Notifications: { userData: { id: string; fullName: string; email: string; password: string; role: string; avatarUri?: string  } };
-  DanhSachPhong: { userData: { id: number; fullName: string; email: string; password: string; role: string; avatarUri?: string  } };
-  UserFooter: { userData: { id: number; fullName: string; email: string; password: string; role: string; avatarUri?: string  } };
-  PhongHoc: { roomId: string; roomName: string; ownerId: string };
-  Profile: { userId: string; userData: { id: string; fullName: string; email: string; password: string; role: string; avatarUri?: string } };
+
   DangKy: undefined;
-  DangNhap: { userData?: { id?: number; fullName?: string; email?: string; password?: string; role?: string } };
+  DangNhap: { UserData?: { id?: number; fullName?: string; email?: string; password?: string; role?: string } };
   QuenMatKhau: undefined;
   VideoCall: undefined;
+  MessageAllUser: { currentUser: UserData }; // Cần chắc chắn UserData đã được khai báo
+  ChatScreen: { senderData: UserData; receiverId: string }; // Đảm bảo senderData có kiểu UserData
+  UserOther: { userId: string }; // Đảm bảo user có kiểu UserData
 };

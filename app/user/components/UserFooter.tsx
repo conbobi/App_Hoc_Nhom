@@ -11,46 +11,50 @@ type NavigationProp = StackNavigationProp<RootStackParamList>;
 const UserFooter = () => {
   const navigation = useNavigation<NavigationProp>();
   const route = useRoute<UserFooterRouteProp>();
-  const { userData } = route.params || {};
+  const { UserData } = route.params || {};
 
-  // Kiểm tra giá trị của userData
-  console.log('userData:', userData);
+  // Kiểm tra giá trị của UserData
+  console.log('UserData:', UserData);
 
-  // Chuyển đổi userData.id thành string
-  const updatedUserData = { ...userData, id: userData.id.toString() };
+  // Chuyển đổi UserData.id thành string
+  const updatedUserData = { ...UserData, id: UserData.id.toString() };
 
   return (
     <View style={styles.container}>
-      <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('Home', { userData: updatedUserData })}>
+      <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('Home', { UserData: updatedUserData })}>
         <Ionicons name="home" size={24} color="#000" />
         <Text style={styles.label}>Home</Text>
       </TouchableOpacity>
 
-      <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('NhiemVu', { userData: updatedUserData })}>
+      <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('NhiemVu', { UserData: updatedUserData })}>
         <Ionicons name="list" size={24} color="#000" />
         <Text style={styles.label}>Nhiệm Vụ</Text>
       </TouchableOpacity>
 
-      <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('Notifications', { userData: updatedUserData })}>
+      <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('Notifications', { UserData: updatedUserData })}>
         <Ionicons name="notifications" size={24} color="#000" />
         <Text style={styles.label}>Thông Báo</Text>
       </TouchableOpacity>
 
      
-<TouchableOpacity style={styles.button} onPress={() => navigation.navigate('DanhSachPhong', { userData })}>
+<TouchableOpacity style={styles.button} onPress={() => navigation.navigate('DanhSachPhong', { UserData })}>
         <Ionicons name="school" size={24} color="#000" />
         <Text style={styles.label}>Phòng Học</Text>
       </TouchableOpacity>
 
       <TouchableOpacity style={styles.button} onPress={() => {
-        if (userData && userData.id) {
-          navigation.navigate('Profile', { userId: userData.id.toString(), userData: updatedUserData });
+        if (UserData && UserData.id) {
+          navigation.navigate('Profile', { userId: UserData.id.toString(), UserData: updatedUserData });
         } else {
-          console.error('userData hoặc userData.id không tồn tại');
+          console.error('UserData hoặc UserData.id không tồn tại');
         }
       }}>
         <Ionicons name="person" size={24} color="#000" />
         <Text style={styles.label}>Profile</Text>
+      </TouchableOpacity>
+      <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('MessageAllUser', { currentUser: updatedUserData })}>
+        <Ionicons name="chatbubbles" size={24} color="#000" />
+        <Text style={styles.label}>Chat</Text>
       </TouchableOpacity>
     </View>
   );

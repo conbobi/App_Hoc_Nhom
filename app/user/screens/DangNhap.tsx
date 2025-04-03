@@ -29,22 +29,22 @@ export default function DangNhap() {
       const user = userCredential.user;
 
       const userDoc = await firebase.firestore().collection('users').doc(user?.uid).get();
-      const userData = userDoc.data();
+      const UserData = userDoc.data();
 
-      if (userData) {
+      if (UserData) {
         Alert.alert('Thành công', 'Đăng nhập thành công!');
         if (user?.uid) {
-          if (userData.role === 'Admin') {
+          if (UserData.role === 'Admin') {
             navigation.navigate('HomeAdmin');
           } else {
             navigation.navigate('Home', {
-              userData: {
+              UserData: {
                 id: user.uid,
-                fullName: userData.fullName,
-                email: userData.email,
-                password: userData.password,
-                role: userData.role,
-                avatarUri: userData.avatarUri || '',
+                fullName: UserData.fullName,
+                email: UserData.email,
+                password: UserData.password,
+                role: UserData.role,
+                avatarUri: UserData.avatarUri || '',
               },
             });
           }
@@ -112,7 +112,6 @@ export default function DangNhap() {
       <TouchableOpacity onPress={() => navigation.navigate('QuenMatKhau')}>
         <Text style={styles.forgotPasswordText}>Quên mật khẩu?</Text>
       </TouchableOpacity>
-      <Text>code giả bộ</Text>
     </View>
   );
 }

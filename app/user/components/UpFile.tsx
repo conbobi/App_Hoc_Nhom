@@ -107,7 +107,7 @@ const UpFile = ({ roomId, currentUserId }: UpFileProps) => {
     if (!user) return;
 
     const userDoc = await firebase.firestore().collection("users").doc(user.uid).get();
-    const userData = userDoc.data();
+    const UserData = userDoc.data();
 
     const newMessage = {
       id: Date.now().toString(),
@@ -115,8 +115,8 @@ const UpFile = ({ roomId, currentUserId }: UpFileProps) => {
       image: imageUrl,
       file: fileUrl,
       senderId: user.uid,
-      senderName: userData?.fullName || "Người dùng",
-      senderAvatar: userData?.avatarUri || "",
+      senderName: UserData?.fullName || "Người dùng",
+      senderAvatar: UserData?.avatarUri || "",
       timestamp: firebase.firestore.Timestamp.now(),
     };
 

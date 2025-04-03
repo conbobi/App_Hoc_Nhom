@@ -1,248 +1,131 @@
-import React, { useState } from 'react';
-import {
-  View,
-  Text,
-  StyleSheet,
-  FlatList,
-  TouchableOpacity,
-  ScrollView,
-} from 'react-native';
+import React, { useEffect, useState } from "react";
+import { View, Text, FlatList, TouchableOpacity, StyleSheet, Image, Alert } from "react-native";
+import firebase from "firebase/compat/app";
+import "firebase/compat/firestore";
+import Notification from "./types/Notification";
+import Message from "./types/Message";
+import UserData from "./types/UserData";
+import Room from "./types/Room";
 
-interface Notification {
-  id: string;
-  title: string;
-  content: string;
-  sender: 'Admin' | 'Nhóm';
-  time: string;
-}
+const NotificationScreen = () => {
+  const [notifications, setNotifications] = useState<Notification[]>([]);
+  const [filter, setFilter] = useState<'all' | 'admin' | 'group' | 'user' | 'system'>('all');
 
-const Notifications = () => {
-  const [filter, setFilter] = useState<'Tất cả' | 'Admin' | 'Nhóm'>('Tất cả');
-  const [selectedNotification, setSelectedNotification] = useState<Notification | null>(null);
+  useEffect(() => {
+    const fetchNotifications = async () => {
+      try {
+        const snapshot = await firebase.firestore().collection("notifications").get();
+        const fetchedNotifications = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Notification));
+        setNotifications(fetchedNotifications);
+      } catch (error) {
+        console.error("Error fetching notifications:", error);
+      }
+    };
+    fetchNotifications();
+  }, []);
 
-  const notifications: Notification[] = [
-    {
-      id: '1',
-      title: 'Cập nhật lịch học nhóm',
-      content: 'Nhóm Khoa học máy tính sẽ họp vào thứ 4 lúc 14h tại phòng A301.',
-      sender: 'Nhóm',
-      time: '1 giờ trước',
-    },
-    {
-      id: '2',
-      title: 'Thông báo nghỉ học',
-      content: 'Admin thông báo: Lớp Toán 2 sẽ nghỉ vào ngày 27/12/2024.',
-      sender: 'Admin',
-      time: '3 giờ trước',
-    },
-    {
-      id: '3',
-      title: 'Kế hoạch cuối kỳ',
-      content: 'Họp nhóm để chuẩn bị kế hoạch cuối kỳ và phân chia công việc.',
-      sender: 'Nhóm',
-      time: 'Hôm qua',
-    },
-  ];
+  const addNotification = async () => {
+    try {
+      const userRef = firebase.firestore().collection("users").doc("USER_ID");
+      const roomRef = firebase.firestore().collection("rooms").doc("ROOM_ID");
 
-  const filteredNotifications = notifications.filter(
-    (notification) =>
-      filter === 'Tất cả' || notification.sender === filter
-  );
+      const userDoc = await userRef.get();
+      const roomDoc = await roomRef.get();
 
-  const renderNotification = ({ item }: { item: Notification }) => (
-    <TouchableOpacity
-      style={styles.notificationCard}
-      onPress={() => setSelectedNotification(item)}
-    >
-      <View style={styles.notificationHeader}>
-        <Text style={styles.notificationTitle}>{item.title}</Text>
-        <Text style={styles.notificationTime}>{item.time}</Text>
-      </View>
-      <Text style={styles.notificationContent} numberOfLines={2}>
-        {item.content}
-      </Text>
-      <Text style={styles.notificationSender}>
-        {item.sender === 'Admin' ? 'Từ Admin' : 'Từ Nhóm'}
-      </Text>
-    </TouchableOpacity>
-  );
+      if (!userDoc.exists || !roomDoc.exists) {
+        Alert.alert("Error", "User or Room not found!");
+        return;
+      }
+
+      const newNotification: Notification = {
+        id: firebase.firestore().collection("notifications").doc().id,
+        type: "user",
+        title: "New Message from Admin",
+        content: {
+          id: "msg1",
+          content: "Welcome to the group!",
+          senderId: "admin",
+          senderName: "Admin",
+          timestamp: firebase.firestore.Timestamp.now()
+        },
+        sender: userDoc.data() as UserData,
+        state: "unread",
+        UserData: userDoc.data() as UserData,
+        room: roomDoc.data() as Room
+      };
+
+      await firebase.firestore().collection("notifications").doc(newNotification.id).set(newNotification);
+      Alert.alert("Success", "Notification added successfully!");
+    } catch (error) {
+      console.error("Error adding notification:", error);
+      Alert.alert("Error", "Failed to add notification.");
+    }
+  };
+
+  const filteredNotifications = filter === "all" ? notifications : notifications.filter(n => n.type === filter);
 
   return (
     <View style={styles.container}>
-      {/* Header */}
-      <View style={styles.header}>
-        <Text style={styles.headerTitle}>Thông báo</Text>
-      </View>
-
-      {/* Bộ lọc */}
-      <ScrollView
-        horizontal
-        showsHorizontalScrollIndicator={false}
-        style={styles.filterContainer}
-      >
-        {['Tất cả', 'Admin', 'Nhóm'].map((type) => (
-          <TouchableOpacity
-            key={type}
-            style={[styles.filterButton, filter === type && styles.filterButtonActive]}
-            onPress={() => setFilter(type as 'Tất cả' | 'Admin' | 'Nhóm')}
-          >
-            <Text
-              style={[styles.filterText, filter === type && styles.filterTextActive]}
-            >
-              {type}
-            </Text>
+      {/* Bộ lọc thông báo */}
+      <View style={styles.filterContainer}>
+        {['all', 'admin', 'group', 'user', 'system'].map(type => (
+          <TouchableOpacity key={type} onPress={() => setFilter(type as Notification["type"])} style={[styles.filterButton, filter === type && styles.activeFilter]}>
+            <Text style={styles.filterText}>{type.toUpperCase()}</Text>
           </TouchableOpacity>
         ))}
-      </ScrollView>
+      </View>
 
       {/* Danh sách thông báo */}
-      {!selectedNotification ? (
-        <FlatList
-          data={filteredNotifications}
-          keyExtractor={(item) => item.id}
-          renderItem={renderNotification}
-          contentContainerStyle={styles.notificationList}
-        />
-      ) : (
-        <View style={styles.detailContainer}>
-          <Text style={styles.detailTitle}>{selectedNotification.title}</Text>
-          <Text style={styles.detailSender}>
-            {selectedNotification.sender === 'Admin'
-              ? 'Người gửi: Admin'
-              : 'Người gửi: Trưởng nhóm'}
-          </Text>
-          <Text style={styles.detailTime}>{selectedNotification.time}</Text>
-          <Text style={styles.detailContent}>{selectedNotification.content}</Text>
-          <TouchableOpacity
-            style={styles.backButton}
-            onPress={() => setSelectedNotification(null)}
-          >
-            <Text style={styles.backButtonText}>Quay lại</Text>
+      <FlatList
+        data={filteredNotifications}
+        keyExtractor={item => item.id}
+        renderItem={({ item }) => (
+          <TouchableOpacity style={styles.notificationItem}>
+            {item.sender?.id && <Image source={{ uri: item.sender.fullName }} style={styles.avatar} />}
+            <View style={{ flex: 1 }}>
+              <Text style={styles.title}>[{getIcon(item.type)}] {item.title}</Text>
+                <Text style={styles.content}>
+                {item.content?.content
+                  ? item.content.content.length > 50
+                    ? item.content.content.substring(0, 50) + "..."
+                    : item.content.content
+                  : "No content available"}
+                </Text>
+              </View>
           </TouchableOpacity>
-        </View>
-      )}
+        )}
+      />
+
+      {/* Nút thêm thông báo */}
+      <TouchableOpacity style={styles.addButton} onPress={addNotification}>
+        <Text style={styles.addButtonText}>+ Add Notification</Text>
+      </TouchableOpacity>
     </View>
   );
 };
 
+const getIcon = (type: Notification["type"]) => {
+  switch (type) {
+    case "admin": return "🟢";
+    case "group": return "🔵";
+    case "user": return "🟡";
+    case "system": return "🔴";
+    default: return "⚪";
+  }
+};
+
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#f7f9fc',
-    paddingHorizontal: 16,
-    paddingTop: 20,
-  },
-  header: {
-    marginBottom: 16,
-  },
-  headerTitle: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: '#333',
-  },
-  filterContainer: {
-    flexDirection: 'row',
-    marginBottom: 16,
-  },
-  filterButton: {
-    paddingVertical: 8,
-    paddingHorizontal: 16,
-    backgroundColor: '#e0e0e0',
-    borderRadius: 20,
-    marginRight: 8,
-  },
-  filterButtonActive: {
-    backgroundColor: '#007bff',
-  },
-  filterText: {
-    fontSize: 14,
-    color: '#555',
-  },
-  filterTextActive: {
-    color: '#fff',
-  },
-  notificationList: {
-    paddingBottom: 16,
-  },
-  notificationCard: {
-    backgroundColor: '#fff',
-    borderRadius: 8,
-    padding: 16,
-    marginBottom: 12,
-    shadowColor: '#000',
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    shadowOffset: { width: 0, height: 2 },
-    elevation: 2,
-  },
-  notificationHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginBottom: 8,
-  },
-  notificationTitle: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    color: '#333',
-  },
-  notificationTime: {
-    fontSize: 12,
-    color: '#888',
-  },
-  notificationContent: {
-    fontSize: 14,
-    color: '#555',
-    marginBottom: 8,
-  },
-  notificationSender: {
-    fontSize: 12,
-    color: '#007bff',
-    fontStyle: 'italic',
-  },
-  detailContainer: {
-    flex: 1,
-    backgroundColor: '#fff',
-    borderRadius: 8,
-    padding: 16,
-    shadowColor: '#000',
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    shadowOffset: { width: 0, height: 2 },
-    elevation: 2,
-  },
-  detailTitle: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    marginBottom: 8,
-    color: '#333',
-  },
-  detailSender: {
-    fontSize: 14,
-    marginBottom: 8,
-    color: '#007bff',
-  },
-  detailTime: {
-    fontSize: 12,
-    marginBottom: 16,
-    color: '#888',
-  },
-  detailContent: {
-    fontSize: 14,
-    lineHeight: 20,
-    color: '#555',
-  },
-  backButton: {
-    marginTop: 16,
-    alignItems: 'center',
-    backgroundColor: '#007bff',
-    paddingVertical: 12,
-    borderRadius: 8,
-  },
-  backButtonText: {
-    color: '#fff',
-    fontWeight: 'bold',
-    fontSize: 14,
-  },
+  container: { flex: 1, padding: 10, backgroundColor: "#fff" },
+  filterContainer: { flexDirection: "row", justifyContent: "space-around", marginBottom: 10 },
+  filterButton: { padding: 8, borderRadius: 5, backgroundColor: "#e0e0e0" },
+  activeFilter: { backgroundColor: "#6200ee" },
+  filterText: { fontWeight: "bold", color: "#000" },
+  notificationItem: { padding: 12, borderBottomWidth: 1, borderColor: "#ddd", flexDirection: "row", alignItems: "center" },
+  title: { fontWeight: "bold", marginRight: 10 },
+  content: { flex: 1 },
+  avatar: { width: 40, height: 40, borderRadius: 20, marginRight: 10 },
+  addButton: { marginTop: 20, padding: 12, backgroundColor: "#6200ee", borderRadius: 5, alignItems: "center" },
+  addButtonText: { color: "#fff", fontWeight: "bold" },
 });
 
-export default Notifications;
+export default NotificationScreen;

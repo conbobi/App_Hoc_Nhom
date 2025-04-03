@@ -12,7 +12,7 @@ import DanhSachPhong from './app/user/screens/DanhSachPhong';
 import UserFooter from './app/user/components/UserFooter';
 import QuenMatKhau from './app/user/screens/QuenMatKhau';
 import VideoCall from './app/user/components/VideoCall';
-import TaskDetail from './app/user/screens/taskDetail';
+
 // admin
 import HomeAdmin from './app/admin/screens/HomeAdmin';
 import QlNhom from './app/admin/screens/QlNhom';
@@ -20,7 +20,7 @@ import UserManagement from './app/admin/screens/UserManagement';
 import AdminAcc from './app/admin/screens/AdminAcc';
 import GroupDetail from './app/admin/screens/GroupDetail';
 import EditGroup from './app/admin/screens/EditGroup';
-
+import ChiTietPhong from './app/user/screens/ChiTietPhong';
 import { RootStackParamList } from './app/user/screens/types/RootStackParamList';
 const Stack = createStackNavigator<RootStackParamList>();
 
@@ -40,8 +40,7 @@ export default function App() {
         <Stack.Screen name="DangKy" component={DangKy} options={{ headerShown: false }} />
         <Stack.Screen name="QuenMatKhau" component={QuenMatKhau} options={{ headerShown: false }} />
         <Stack.Screen name="VideoCall" component={VideoCall} options={{ headerShown: false }} />
-        {/* Các màn hình khác */}
-        <Stack.Screen name="TaskDetail" component={TaskDetail} options={{ title: 'Chi tiết nhiệm vụ' }} />
+
 
         {/* Các màn hình của admin */}
         <Stack.Screen name="HomeAdmin" component={HomeAdmin} options={{ headerShown: false }} />

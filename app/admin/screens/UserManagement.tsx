@@ -5,15 +5,15 @@ import { StackNavigationProp } from '@react-navigation/stack';
 import { RootStackParamList } from '../../user/screens/types/RootStackParamList';
 import styles from '../styles/UserManagementStyles';
 import firebase from '../../../FirebaseConfig';
-import userData from '../../user/screens/types/UserData';
+import UserData from '../../user/screens/types/UserData';
 import LayoutAD from '../../admin/components/mainLayout';
 import { Ionicons } from '@expo/vector-icons';
 
 type UserManagementScreenNavigationProp = StackNavigationProp<RootStackParamList, 'UserManagement'>;
 
 export default function UserManagement() {
-  const [users, setUsers] = useState<userData[]>([]);
-  const [selectedUser, setSelectedUser] = useState<userData | null>(null);
+  const [users, setUsers] = useState<UserData[]>([]);
+  const [selectedUser, setSelectedUser] = useState<UserData | null>(null);
   const [fullName, setFullName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -32,7 +32,7 @@ export default function UserManagement() {
           email: data.email,
           password: data.password,
           role: data.role,
-        } as userData;
+        } as UserData;
       });
       setUsers(usersData);
     };
@@ -119,7 +119,7 @@ export default function UserManagement() {
     );
   };
 
-  const handleSelectUser = (user: userData) => {
+  const handleSelectUser = (user: UserData) => {
     setSelectedUser(user);
     setFullName(user.fullName);
     setEmail(user.email);
