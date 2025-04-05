@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from "react";
 import { View, Text, FlatList, TextInput, TouchableOpacity, Alert, StyleSheet } from "react-native";
+// @ts-ignore
 import { NavigationProp, useNavigation } from "@react-navigation/native";
 import firebase from "firebase/compat/app";
 import "firebase/compat/firestore";
+// @ts-ignore
 import { createMaterialTopTabNavigator } from "@react-navigation/material-top-tabs";
 import { Image } from "react-native";
 import UserData from "./types/UserData";
@@ -14,7 +16,7 @@ interface FriendRequest {
   id: string;
   SenderID: string;
   RecipterID: string;
-}
+} 
 
 
 const MessageAllUserData = () => {

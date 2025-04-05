@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, Image, StyleSheet, TouchableOpacity } from 'react-native';
-import { useRoute, RouteProp } from '@react-navigation/native';
+// @ts-ignore
+import { RouteProp, useRoute } from "@react-navigation/native";
 import firebase from 'firebase/compat/app';
 import 'firebase/compat/firestore';
 import { RootStackParamList } from './types/RootStackParamList';

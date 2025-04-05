@@ -8,7 +8,9 @@ import {
   Alert,
 } from 'react-native';
 import * as Clipboard from 'expo-clipboard';
+// @ts-ignore
 import { useNavigation } from '@react-navigation/native';
+// @ts-ignore
 import { StackNavigationProp } from '@react-navigation/stack';
 import firebase from 'firebase/compat/app';
 import 'firebase/compat/auth';

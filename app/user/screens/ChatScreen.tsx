@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { View, Text, TextInput, FlatList, TouchableOpacity } from "react-native";
 import firebase from "firebase/compat/app";
 import "firebase/compat/firestore";
+// @ts-ignore
 import { RouteProp, useRoute } from "@react-navigation/native";
 import { RootStackParamList } from "./types/RootStackParamList";
 import Message from "./types/Message";
