@@ -1,3 +1,4 @@
+// @ts-ignore
 import { NavigatorScreenParams } from '@react-navigation/native';
 import UserData from './UserData';
 import ChatScreen from '../ChatScreen';

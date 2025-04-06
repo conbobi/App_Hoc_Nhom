@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, Alert } from 'react-native';
+// @ts-ignore
 import { useNavigation } from '@react-navigation/native';
+// @ts-ignore
 import { StackNavigationProp } from '@react-navigation/stack';
 import { RootStackParamList } from './types/RootStackParamList';
 import styles from '../styles/DangKyStyles';

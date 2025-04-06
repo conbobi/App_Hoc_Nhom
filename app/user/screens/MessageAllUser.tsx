@@ -9,6 +9,7 @@ import { createMaterialTopTabNavigator } from "@react-navigation/material-top-ta
 import { Image } from "react-native";
 import UserData from "./types/UserData";
 import { RootStackParamList } from "./types/RootStackParamList";
+import UserFooter from "../components/UserFooter"; // Đường dẫn tới file UserFooter
 const Tab = createMaterialTopTabNavigator();
 
 // Định nghĩa kiểu dữ liệu
@@ -127,6 +128,7 @@ const MessageAllUserData = () => {
     navigation.navigate("UserOther", { userId });
   };
   return (
+    <View style={{ flex: 1 }}>
     <Tab.Navigator>
       <Tab.Screen name="Bạn bè">
         {() => (
@@ -140,7 +142,7 @@ const MessageAllUserData = () => {
           <TouchableOpacity style={styles.searchButton} onPress={searchUserDataByFullName}>
             <Text style={styles.buttonText}>Tìm kiếm</Text>
           </TouchableOpacity>
-          // Trong FlatList, thay vì chỉ hiển thị tên, thêm TouchableOpacity để mở hồ sơ
+          
 <FlatList
   data={searchResults}
   keyExtractor={(item) => item.id}
@@ -197,6 +199,8 @@ const MessageAllUserData = () => {
         )}
       </Tab.Screen>
     </Tab.Navigator>
+    <UserFooter /> {/* Thêm UserFooter ở đây */}
+    </View>
   );
 };
 

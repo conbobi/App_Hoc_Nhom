@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, TextInput } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+// @ts-ignore
 import { useNavigation } from '@react-navigation/native';
+// @ts-ignore
 import { DrawerNavigationProp } from '@react-navigation/drawer';
 import { RootStackParamList } from '../screens/types/RootStackParamList';
 

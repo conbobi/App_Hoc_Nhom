@@ -5,7 +5,8 @@ import { Camera } from "expo-camera";
 import QRCode from "react-native-qrcode-svg";
 import * as Clipboard from "expo-clipboard";
 import { Linking } from "react-native";
-import { useNavigation } from "@react-navigation/native"; // Import navigation
+// @ts-ignore
+import { useNavigation } from '@react-navigation/native';
 import { SafeAreaView } from "react-native-safe-area-context";
 
 const VideoCall = () => {

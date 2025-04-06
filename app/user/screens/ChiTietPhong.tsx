@@ -1,8 +1,11 @@
 import React from "react";
 import { View, Text, Image, FlatList, StyleSheet, TouchableOpacity, Linking } from "react-native";
-import { useNavigation } from "@react-navigation/native";
-import { RouteProp, useRoute } from "@react-navigation/native";
-import { StackNavigationProp } from "@react-navigation/stack";
+// @ts-ignore
+import { useNavigation } from '@react-navigation/native';
+// @ts-ignore
+import { RouteProp, useRoute } from '@react-navigation/native';
+// @ts-ignore
+import { StackNavigationProp } from '@react-navigation/stack';
 import { RootStackParamList } from "../screens/types/RootStackParamList"; // Cập nhật đúng đường dẫn tới RootStackParamList
 
 
@@ -31,7 +34,7 @@ const ChiTietPhong = () => {
      {/* Danh sách file đã gửi */}
 <Text style={styles.sectionTitle}>Tệp Đã Gửi</Text>
 {files.length > 0 ? (
-  files.map((file, index) => (
+  files.map((file: string, index: number) => (
     <TouchableOpacity key={index} onPress={() => Linking.openURL(file)}>
       <Text style={styles.fileItem}>📄 {decodeURIComponent(file.split("/").pop() || "Tệp tin")}</Text>
     </TouchableOpacity>

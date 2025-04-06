@@ -1,6 +1,8 @@
 import React from 'react';
 import { View, TouchableOpacity, Text, StyleSheet } from 'react-native';
+// @ts-ignore
 import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
+// @ts-ignore
 import { StackNavigationProp } from '@react-navigation/stack';
 import { Ionicons } from '@expo/vector-icons';
 import { RootStackParamList } from '../screens/types/RootStackParamList';
@@ -13,10 +15,11 @@ const UserFooter = () => {
   const route = useRoute<UserFooterRouteProp>();
   const { UserData } = route.params || {};
 
-  // Kiểm tra giá trị của UserData
-  console.log('UserData:', UserData);
-
-  // Chuyển đổi UserData.id thành string
+  if (!UserData || !UserData.id) {
+    console.error("UserData không tồn tại hoặc không hợp lệ:", UserData);
+    return null; // Hoặc hiển thị một thông báo lỗi
+  }
+  
   const updatedUserData = { ...UserData, id: UserData.id.toString() };
 
   return (

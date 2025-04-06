@@ -1,5 +1,8 @@
+// @ts-ignore
 import { StackNavigationProp } from "@react-navigation/stack";
+// @ts-ignore
 import { RouteProp } from "@react-navigation/native";
+// @ts-ignore
 import { useNavigation } from "@react-navigation/native"; // Import navigation
 import React, { useState, useEffect } from "react";
 import {

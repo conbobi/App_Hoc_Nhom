@@ -11,7 +11,9 @@ import {
   TouchableOpacity,
   Alert,
 } from 'react-native';
+// @ts-ignore
 import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
+// @ts-ignore
 import { StackNavigationProp } from '@react-navigation/stack';
 import { RootStackParamList } from './types/RootStackParamList';
 import { SafeAreaView } from 'react-native-safe-area-context';

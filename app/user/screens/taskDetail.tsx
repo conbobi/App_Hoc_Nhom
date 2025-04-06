@@ -11,7 +11,7 @@ import {
 } from 'react-native';
 
 import DateTimePickerModal from 'react-native-modal-datetime-picker';
-
+// @ts-ignore
 import { useRoute, RouteProp } from '@react-navigation/native';
 import { doc, getDoc, updateDoc } from 'firebase/firestore';
 import firebase from '../../../FirebaseConfig';

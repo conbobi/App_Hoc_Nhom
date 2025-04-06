@@ -21,14 +21,18 @@ import { getAuth } from 'firebase/auth'; // Import Firebase Auth
 import Task from '../screens/types/task';
 import Icon from 'react-native-vector-icons/MaterialIcons'; // Import thư viện icon
 import DateTimePicker from '@react-native-community/datetimepicker'; // Import thư viện DatePicker
-import { useNavigation } from '@react-navigation/native'; // Import useNavigation
+// @ts-ignore
+import { useNavigation } from '@react-navigation/native';
+// @ts-ignore
+import { createNativeStackNavigator } from "@react-navigation/native-stack";
+// @ts-ignore
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../screens/types/RootStackParamList'; // Đường dẫn đến file kiểu dữ liệu
 import Subtask from './types/subtask'; // Thêm dòng này
-
+import TaskDetail from "../screens/taskDetail"; // Import màn hình TaskDetail
 
 const db = firebase.firestore();
-
+const Stack = createNativeStackNavigator();
 const NhiemVu = () => {
 
   
@@ -48,6 +52,7 @@ const NhiemVu = () => {
     // Xử lý khi chọn ngày
     const formattedDate = date.toISOString().split("T")[0]; // Định dạng ngày (YYYY-MM-DD)
     setNewTask({ ...newTask, deadline: formattedDate });
+    
     hideDatePicker();
   };
 
@@ -195,22 +200,22 @@ const NhiemVu = () => {
 
   const renderTask = ({ item }: { item: Task }) => (
     <View style={styles.taskCard}>
-      <View style={styles.taskHeader}>
-        <Text style={styles.taskTitle}>{item.title}</Text>
-        <Text
-          style={[
-            styles.taskStatus,
-            item.status === 'Đang thực hiện'
-              ? styles.statusInProgress
-              : item.status === 'Đã hoàn thành'
-              ? styles.statusCompleted
-              : styles.statusOverdue,
-          ]}
-        >
-       {item.status}
-        </Text>
-      </View>
-      <Text style={styles.taskDeadline}>Hạn chót: {item.deadline}</Text>      
+    <View style={styles.taskHeader}>
+      <Text style={styles.taskTitle}>{item.title}</Text>
+      <Text
+        style={[
+          styles.taskStatus,
+          item.status === 'Đang thực hiện'
+            ? styles.statusInProgress
+            : item.status === 'Đã hoàn thành'
+            ? styles.statusCompleted
+            : styles.statusOverdue,
+        ]}
+      >
+        {item.status}
+      </Text>
+    </View>
+    <Text style={styles.taskDeadline}>Hạn chót: {item.deadline}</Text>    
       
         {/* Nút Chi tiết */}
         <TouchableOpacity
@@ -293,11 +298,11 @@ const NhiemVu = () => {
 
       {/* Danh sách nhiệm vụ */}
       <FlatList
-        data={filteredTasks}
-        keyExtractor={(item) => item.id}
-        renderItem={renderTask}
-        contentContainerStyle={styles.taskList}
-        extraData={tasks} // Buộc FlatList làm mới khi tasks thay đổi
+      data={filteredTasks}
+      keyExtractor={(item) => item.id}
+      renderItem={renderTask}
+      contentContainerStyle={styles.taskList}
+      extraData={tasks}
       />
 
       {/* Nút thêm nhiệm vụ */}
@@ -325,8 +330,8 @@ const NhiemVu = () => {
               value={newTask.title}
               onChangeText={(text) => setNewTask({ ...newTask, title: text })}
             />
-                      {/* Hạn chót */}
-                      <TouchableOpacity
+              {/* Hạn chót */}
+              <TouchableOpacity
               style={styles.datePickerButton}
               onPress={showDatePicker}
             >
