@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { View, Text, TextInput, FlatList, TouchableOpacity } from "react-native";
+import { View, Text, TextInput, FlatList, TouchableOpacity, StyleSheet } from "react-native";
 import firebase from "firebase/compat/app";
 import "firebase/compat/firestore";
 // @ts-ignore
@@ -8,43 +8,24 @@ import { RootStackParamList } from "./types/RootStackParamList";
 import Message from "./types/Message";
 import UserData from "./types/UserData";
 
+// Định nghĩa kiểu route
 type ChatScreenRouteProp = RouteProp<RootStackParamList, "ChatScreen">;
 
 const ChatScreen = () => {
   const route = useRoute<ChatScreenRouteProp>();
-  const senderData: UserData = route.params?.senderData as UserData;
-  const receiverId: string = route.params?.receiverId as string;  
-  if (!senderData || !receiverId) {
-    console.error("Dữ liệu truyền vào ChatScreen không hợp lệ!");
-    return null; // Hoặc hiển thị loading/error
-  }
-  const [receiverData, setReceiverData] = useState<UserData | null>(null);
+  const senderData = route.params?.senderId as string;
+  const { senderId, receiverId } = route.params;
+
   const [messages, setMessages] = useState<Message[]>([]);
   const [messageText, setMessageText] = useState("");
 
   useEffect(() => {
-    // Lấy thông tin user nhận tin nhắn
-    const fetchReceiverData = async () => {
-      const doc = await firebase.firestore().collection("users").doc(receiverId).get();
-      if (doc.exists) setReceiverData(doc.data() as UserData);
-      if (doc.exists && doc.data()) {
-        setReceiverData(doc.data() as UserData);
-      } else {
-        console.error("Không tìm thấy dữ liệu của người nhận!");
-      }
-    };
-
-    fetchReceiverData();
-  }, [receiverId]);
-
-  useEffect(() => {
-    if (!receiverData) return;
+    if (!senderId || !receiverId) return;
 
     const chatQuery = firebase
       .firestore()
       .collection("messages")
-      .where("senderId", "in", [senderData.id, receiverId])
-      .where("receiverId", "in", [senderData.id, receiverId])
+      .where("participants", "array-contains", senderId)
       .orderBy("timestamp", "asc");
 
     const unsubscribe = chatQuery.onSnapshot((snapshot) => {
@@ -52,17 +33,16 @@ const ChatScreen = () => {
     });
 
     return unsubscribe;
-  }, [receiverData]);
+  }, [senderId, receiverId]);
 
   const sendMessage = async () => {
-    if (!messageText.trim()) return;
+    if (!messageText.trim() || !senderId || !receiverId) return;
 
     await firebase.firestore().collection("messages").add({
       content: messageText,
-      senderId: senderData.id,
-      senderName: senderData.fullName,
-      senderAvatar: senderData.avatarUri,
+      senderId: senderId,
       receiverId: receiverId,
+      participants: [senderId, receiverId],
       timestamp: firebase.firestore.FieldValue.serverTimestamp(),
     });
 
@@ -70,13 +50,78 @@ const ChatScreen = () => {
   };
 
   return (
-    <View>
-      <Text>Chat với {receiverData?.fullName}</Text>
-      <FlatList data={messages} keyExtractor={(item) => item.id} renderItem={({ item }) => <Text>{item.content}</Text>} />
-      <TextInput value={messageText} onChangeText={setMessageText} placeholder="Nhập tin nhắn..." />
-      <TouchableOpacity onPress={sendMessage}><Text>Gửi</Text></TouchableOpacity>
+    <View style={styles.container}>
+      <FlatList
+        data={messages}
+        keyExtractor={(item) => item.id}
+        renderItem={({ item }) => (
+          <Text style={item.senderId === senderId ? styles.sentMessage : styles.receivedMessage}>
+            {item.content}
+          </Text>
+        )}
+      />
+      <TextInput
+        value={messageText}
+        onChangeText={setMessageText}
+        placeholder="Nhập tin nhắn..."
+        style={styles.input}
+      />
+      <TouchableOpacity onPress={sendMessage} style={styles.sendButton}>
+        <Text style={styles.sendButtonText}>Gửi</Text>
+      </TouchableOpacity>
     </View>
   );
 };
 
 export default ChatScreen;
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    padding: 16,
+    backgroundColor: "#f9f9f9",
+  },
+  input: {
+    borderWidth: 1,
+    borderColor: "#ccc",
+    padding: 8,
+    marginBottom: 16,
+  },
+  sendButton: {
+    backgroundColor: "#4caf50",
+    padding: 8,
+    borderRadius: 4,
+    marginTop: 16,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  sendButtonText: {
+    color: "white",
+  },
+  sentMessage: {
+    backgroundColor: "#eeeeee",
+    padding: 16,
+    borderRadius: 16,
+    maxWidth: "75%",
+    marginBottom: 8,
+    marginLeft: 8,
+  },
+  receivedMessage: {
+    backgroundColor: "#ffffff",
+    padding: 16,
+    borderRadius: 16,
+    maxWidth: "75%",
+    marginBottom: 8,
+    marginLeft: "auto",
+  },
+  messageContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: 8,
+  },
+  messageText: {
+    fontSize: 16,
+    maxWidth: "75%",
+    marginLeft: 8,
+  },
+  });

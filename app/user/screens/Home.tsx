@@ -25,6 +25,7 @@ export default function Home() {
   const currentUserId = firebase.auth().currentUser?.uid || '';
   const db = firebase.firestore();
 
+  
   // Lấy dữ liệu nhiệm vụ từ Firestore
   const fetchTaskStats = async () => {
     const tasksQuery = query(collection(db, 'tasks'), where('createdBy', '==', currentUserId));
@@ -45,18 +46,38 @@ export default function Home() {
   };
 
   // Lấy dữ liệu phòng học từ Firestore
+ 
   const fetchRoomStats = async () => {
-    const createdRoomsQuery = query(collection(db, 'rooms'), where('ownerId', '==', currentUserId));
-    const joinedRoomsQuery = query(collection(db, 'rooms'), where('membersId', 'array-contains', currentUserId));
-
-    const createdRoomsSnapshot = await getDocs(createdRoomsQuery);
-    const joinedRoomsSnapshot = await getDocs(joinedRoomsQuery);
-
-    setRoomStats({
-      created: createdRoomsSnapshot.size,
-      joined: joinedRoomsSnapshot.size,
-    });
+    try {
+      // Lấy tất cả các phòng mà người dùng đã tạo
+      const createdRoomsQuery = query(
+        collection(db, 'rooms'),
+        where('ownerId', '==', currentUserId)
+      );
+      const createdRoomsSnapshot = await getDocs(createdRoomsQuery);
+  
+      // Lấy tất cả các phòng mà người dùng là thành viên
+      const joinedRoomsQuery = query(
+        collection(db, 'rooms'),
+        where('membersId', 'array-contains', currentUserId)
+      );
+      const joinedRoomsSnapshot = await getDocs(joinedRoomsQuery);
+  
+      // Lọc các phòng mà ownerId không phải là currentUserId
+      const filteredRooms = joinedRoomsSnapshot.docs.filter(
+        (doc) => doc.data().ownerId !== currentUserId
+      );
+  
+      // Cập nhật thống kê phòng
+      setRoomStats({
+        created: createdRoomsSnapshot.size, // Số lượng phòng đã tạo
+        joined: filteredRooms.length, // Số lượng phòng đã tham gia nhưng không phải là chủ sở hữu
+      });
+    } catch (error) {
+      console.error('Lỗi khi lấy dữ liệu phòng:', error);
+    }
   };
+  
 
   useEffect(() => {
     fetchTaskStats();

@@ -270,36 +270,36 @@ const NhiemVu = () => {
   </TouchableOpacity>
   {filterExpanded && (
     <View style={styles.filterDropdown}>
-      {['Tất cả', 'Đang thực hiện', 'Đã hoàn thành', 'Quá hạn'].map((status) => (
-        <TouchableOpacity
-          key={status}
+    {['Tất cả', 'Đang thực hiện', 'Đã hoàn thành', 'Quá hạn'].map((status) => (
+      <TouchableOpacity
+        key={status}
+        style={[
+          styles.filterOption,
+          filter === status && styles.filterOptionActive,
+        ]}
+        onPress={() => {
+          setFilter(status);
+          setFilterExpanded(false); // Thu gọn sau khi chọn
+        }}
+      >
+        <Text
           style={[
-            styles.filterOption,
-            filter === status && styles.filterOptionActive,
+            styles.filterOptionText,
+            filter === status && styles.filterOptionTextActive,
           ]}
-          onPress={() => {
-            setFilter(status);
-            setFilterExpanded(false); // Thu gọn sau khi chọn
-          }}
         >
-          <Text
-            style={[
-              styles.filterOptionText,
-              filter === status && styles.filterOptionTextActive,
-            ]}
-          >
-            {status} ({status === 'Tất cả' ? tasks.length : countTasksByStatus(status)})
-          </Text>
-        </TouchableOpacity>
-      ))}
-    </View>
+          {status} ({status === 'Tất cả' ? tasks.length : countTasksByStatus(status)})
+        </Text>
+      </TouchableOpacity>
+    ))}
+  </View>
   )}
 </View>
 
       {/* Danh sách nhiệm vụ */}
       <FlatList
       data={filteredTasks}
-      keyExtractor={(item) => item.id}
+      keyExtractor= {(item) => item.id}
       renderItem={renderTask}
       contentContainerStyle={styles.taskList}
       extraData={tasks}
@@ -331,6 +331,7 @@ const NhiemVu = () => {
               onChangeText={(text) => setNewTask({ ...newTask, title: text })}
             />
               {/* Hạn chót */}
+              
               <TouchableOpacity
               style={styles.datePickerButton}
               onPress={showDatePicker}
@@ -384,7 +385,7 @@ const NhiemVu = () => {
             <TouchableOpacity style={styles.modalButton} onPress={() => setModalVisible(false)}>
               <Text style={styles.modalButtonText}>Hủy</Text>
             </TouchableOpacity>
-          </View>
+            </View>
           </View>
         </View>
       </Modal>  
@@ -399,6 +400,7 @@ const NhiemVu = () => {
     onRequestClose={() => setUpdateModalVisible(false)}
   >
     <View style={styles.modalContainer}>
+     
       <View style={styles.modalContent}>
         <Text style={styles.TitleTask}>Cập nhật nhiệm vụ</Text>
 

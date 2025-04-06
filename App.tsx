@@ -1,5 +1,7 @@
 import React from 'react';
+//@ts-ignore
 import { NavigationContainer } from '@react-navigation/native';
+//@ts-ignore
 import { createStackNavigator } from '@react-navigation/stack';
 import Home from './app/user/screens/Home';
 import NhiemVu from './app/user/screens/NhiemVu';

@@ -40,7 +40,7 @@ const UserFooter = () => {
       </TouchableOpacity>
 
      
-<TouchableOpacity style={styles.button} onPress={() => navigation.navigate('DanhSachPhong', { UserData })}>
+      <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('DanhSachPhong', { UserData })}>
         <Ionicons name="school" size={24} color="#000" />
         <Text style={styles.label}>Phòng Học</Text>
       </TouchableOpacity>
@@ -55,10 +55,7 @@ const UserFooter = () => {
         <Ionicons name="person" size={24} color="#000" />
         <Text style={styles.label}>Profile</Text>
       </TouchableOpacity>
-      <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('MessageAllUser', { currentUser: updatedUserData })}>
-        <Ionicons name="chatbubbles" size={24} color="#000" />
-        <Text style={styles.label}>Chat</Text>
-      </TouchableOpacity>
+      
     </View>
   );
 };

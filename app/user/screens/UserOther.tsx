@@ -1,17 +1,21 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, Image, StyleSheet, TouchableOpacity } from 'react-native';
-// @ts-ignore
-import { RouteProp, useRoute } from "@react-navigation/native";
+//@ts-ignore
+import { RouteProp, useRoute, useNavigation } from "@react-navigation/native";
 import firebase from 'firebase/compat/app';
 import 'firebase/compat/firestore';
 import { RootStackParamList } from './types/RootStackParamList';
 import UserData from './types/UserData';
+//@ts-ignore
+import { StackNavigationProp } from '@react-navigation/stack';
 
-// Định nghĩa kiểu cho route
+// Kiểu route
 type UserOtherRouteProp = RouteProp<RootStackParamList, 'UserOther'>;
 
 const UserOther: React.FC = () => {
   const route = useRoute<UserOtherRouteProp>();
+  type NavigationProp = StackNavigationProp<RootStackParamList, 'UserOther'>;
+const navigation = useNavigation<NavigationProp>();
   const { userId } = route.params as { userId: string };
   const [isFriend, setIsFriend] = useState(false);
   const [userData, setUserData] = useState<UserData | null>(null);
@@ -30,25 +34,20 @@ const UserOther: React.FC = () => {
     };
 
     const checkFriendStatus = async () => {
-      const userFriendRef = firebase.firestore().collection('ListFriend').doc(currentUserId);
-      const recipientFriendRef = firebase.firestore().collection('ListFriend').doc(userId);
-
-      await userFriendRef.set({
-        Friends: firebase.firestore.FieldValue.arrayUnion({
-          id: userId
-        })
-      }, { merge: true });
- 
-      await recipientFriendRef.set({
-        Friends: firebase.firestore.FieldValue.arrayUnion({
-          id: currentUserId,
-          email: userData?.email,
-          fullName: userData?.fullName,
-          avatarUri: userData?.avatarUri,
-        })
-      }, { merge: true });
-      console.log('Đã thêm vào danh sách bạn bè');
+      if (!currentUserId || !userId) return;
+    
+      try {
+        const doc = await firebase.firestore().collection('ListFriend').doc(currentUserId).get();
+        const friends = doc.exists ? doc.data()?.Friends || [] : [];
+        console.log("👥 Danh sách bạn bè hiện tại:", friends);
+     // Kiểm tra nếu danh sách bạn chứa object có id trùng userId
+     const isFriendExists = friends.includes(userId);
+        setIsFriend(isFriendExists);
+      } catch (error) {
+        console.error("❌ Lỗi khi kiểm tra trạng thái bạn bè:", error);
+      }
     };
+    
 
     fetchUserData();
     checkFriendStatus();
@@ -56,38 +55,60 @@ const UserOther: React.FC = () => {
 
   const sendFriendRequest = async () => {
     if (!currentUserId) return;
+  
     try {
       await firebase.firestore().collection('MakeFriend').add({
         SenderID: currentUserId,
-        SenderEmail: userData?.email,
-        // SenderPhone: userData?.phone,
-        SenderName: userData?.fullName,
-        SenderAvatar: userData?.avatarUri,
+        SenderEmail: firebase.auth().currentUser?.email,
+        SenderName: firebase.auth().currentUser?.displayName || "Người dùng",
+        SenderAvatar: userData?.avatarUri || "",
         RecipterID: userId,
         Accept: false,
       });
-      console.log('Đã gửi lời mời kết bạn');
+  
+      console.log('✅ Đã gửi lời mời kết bạn');
     } catch (error) {
-      console.error('Lỗi khi gửi lời mời kết bạn:', error);
+      console.error('❌ Lỗi khi gửi lời mời kết bạn:', error);
     }
   };
+  
 
   const removeFriend = async () => {
     if (!currentUserId) return;
+  
     try {
-      const friendListRef = firebase.firestore().collection('ListFriend').doc(currentUserId);
-      const friendListDoc = await friendListRef.get();
-
-      if (friendListDoc.exists) {
-        const friends = friendListDoc.data()?.Friends || [];
-        const updatedFriends = friends.filter((friendId: string) => friendId !== userId);
-        await friendListRef.update({ Friends: updatedFriends });
-      }
+      const db = firebase.firestore();
+  
+      const currentUserRef = db.collection('ListFriend').doc(currentUserId);
+      const otherUserRef = db.collection('ListFriend').doc(userId);
+  
+      await currentUserRef.update({
+        Friends: firebase.firestore.FieldValue.arrayRemove(userId),
+      });
+  
+      await otherUserRef.update({
+        Friends: firebase.firestore.FieldValue.arrayRemove({ currentUserId })
+      });
+  
       setIsFriend(false);
-      console.log('Đã hủy kết bạn');
+      console.log('✅ Đã hủy kết bạn');
     } catch (error) {
-      console.error('Lỗi khi hủy kết bạn:', error);
+      console.error('❌ Lỗi khi hủy kết bạn:', error);
     }
+  };
+  
+  
+
+  if (!userData) {
+    return <Text>Đang tải thông tin...</Text>;
+  }
+
+
+  const goToChat = () => {
+    navigation.navigate("ChatScreen", {
+      senderId: currentUserId || "",
+      receiverId: userId,
+    });
   };
 
   if (!userData) {
@@ -99,6 +120,8 @@ const UserOther: React.FC = () => {
       <View style={styles.header}>
         <Image source={{ uri: userData.avatarUri || 'https://default-avatar.com' }} style={styles.avatar} />
         <Text style={styles.fullName}>{userData.fullName}</Text>
+        <Text style={styles.info}>{userData.email}</Text>
+        <Text style={styles.info}>{userData.phone}</Text>
       </View>
 
       <View style={styles.actions}>
@@ -111,6 +134,10 @@ const UserOther: React.FC = () => {
             <Text>Kết bạn</Text>
           </TouchableOpacity>
         )}
+        
+        <TouchableOpacity style={styles.messageButton} onPress={goToChat}>
+          <Text style={{ color: 'white' }}>Nhắn tin</Text>
+        </TouchableOpacity>
       </View>
     </View>
   );
@@ -126,32 +153,33 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   avatar: {
-    width: 100,
-    height: 100,
-    borderRadius: 50,
+    width: 120,
+    height: 120,
+    borderRadius: 60,
     marginBottom: 10,
   },
   fullName: {
-    fontSize: 20,
+    fontSize: 24,
     fontWeight: 'bold',
+  },
+  info: {
+    fontSize: 16,
+    color: '#666',
   },
   actions: {
     flexDirection: 'row',
     justifyContent: 'space-around',
-    marginBottom: 20,
+    marginTop: 30,
   },
   friendButton: {
     backgroundColor: '#DDDDDD',
     padding: 10,
-    borderRadius: 5,
+    borderRadius: 10,
   },
   messageButton: {
-    backgroundColor: '#2196F3',
+    backgroundColor: '#4CAF50',
     padding: 10,
-    borderRadius: 5,
-  },
-  details: {
-    marginTop: 20,
+    borderRadius: 10,
   },
 });
 
