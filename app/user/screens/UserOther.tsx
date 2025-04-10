@@ -1,13 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, Image, StyleSheet, TouchableOpacity } from 'react-native';
-//@ts-ignore
 import { RouteProp, useRoute, useNavigation } from "@react-navigation/native";
 import firebase from 'firebase/compat/app';
 import 'firebase/compat/firestore';
 import { RootStackParamList } from './types/RootStackParamList';
 import UserData from './types/UserData';
-//@ts-ignore
 import { StackNavigationProp } from '@react-navigation/stack';
+
 
 // Kiểu route
 type UserOtherRouteProp = RouteProp<RootStackParamList, 'UserOther'>;
@@ -23,10 +22,17 @@ const navigation = useNavigation<NavigationProp>();
 
   useEffect(() => {
     const fetchUserData = async () => {
+      if (!userId) {
+        console.error('userId không hợp lệ:', userId);
+        return;
+      }
+    
       try {
         const userDoc = await firebase.firestore().collection('users').doc(userId).get();
         if (userDoc.exists) {
           setUserData(userDoc.data() as UserData);
+        } else {
+          console.error('Không tìm thấy dữ liệu người dùng với userId:', userId);
         }
       } catch (error) {
         console.error('Lỗi khi lấy dữ liệu người dùng:', error);
@@ -99,23 +105,20 @@ const navigation = useNavigation<NavigationProp>();
   
   
 
+ 
+
   if (!userData) {
     return <Text>Đang tải thông tin...</Text>;
   }
-
-
+  
   const goToChat = () => {
     navigation.navigate("ChatScreen", {
       senderId: currentUserId || "",
       receiverId: userId,
     });
   };
-
-  if (!userData) {
-    return <Text>Đang tải thông tin...</Text>;
-  }
-
   return (
+    
     <View style={styles.container}>
       <View style={styles.header}>
         <Image source={{ uri: userData.avatarUri || 'https://default-avatar.com' }} style={styles.avatar} />
@@ -140,6 +143,7 @@ const navigation = useNavigation<NavigationProp>();
         </TouchableOpacity>
       </View>
     </View>
+    
   );
 };
 

@@ -1,52 +1,80 @@
-import React, { useState } from 'react';
-import { View, TextInput, TouchableOpacity, Text, FlatList, Image, StyleSheet } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, TextInput, TouchableOpacity, Text, FlatList, StyleSheet, Image } from 'react-native';
+import firebase from 'firebase/compat/app';
+import 'firebase/compat/firestore';
 // @ts-ignore
 import { useNavigation } from '@react-navigation/native';
+// @ts-ignore
+import { StackNavigationProp } from '@react-navigation/stack';
+import { RootStackParamList } from '../screens/types/RootStackParamList';
 import UserData from '../screens/types/UserData';
-import firebase from 'firebase/compat/app';
+
+type NavigationProp = StackNavigationProp<RootStackParamList, 'UserOther'>;
 
 const BanBeTab = () => {
-  const navigation = useNavigation<any>();
+  const [friends, setFriends] = useState<UserData[]>([]);
+  const [filteredFriends, setFilteredFriends] = useState<UserData[]>([]);
   const [searchText, setSearchText] = useState('');
-  const [searchResults, setSearchResults] = useState<UserData[]>([]);
+  const currentUserId = firebase.auth().currentUser?.uid || '';
+  const navigation = useNavigation<NavigationProp>();
 
-  const searchUserDataByFullName = async () => {
-    const snapshot = await firebase.firestore().collection('users').get();
-    const allUsers = snapshot.docs.map(doc => ({
-      id: doc.id,
-      ...doc.data()
-    })) as UserData[];
+  useEffect(() => {
+    const fetchFriends = async () => {
+      try {
+        const db = firebase.firestore();
+        const userDoc = await db.collection('users').doc(currentUserId).get();
+        const friendIds = userDoc.data()?.friends || [];
 
-    const filtered = allUsers.filter(user =>
-      user.fullName?.toLowerCase().includes(searchText.toLowerCase())
+        const friendsData: UserData[] = [];
+        for (const friendId of friendIds) {
+          const friendDoc = await db.collection('users').doc(friendId).get();
+          if (friendDoc.exists) {
+            friendsData.push({ id: friendId, ...friendDoc.data() } as UserData);
+          }
+        }
+
+        setFriends(friendsData);
+        setFilteredFriends(friendsData);
+      } catch (error) {
+        console.error('❌ Lỗi khi lấy danh sách bạn bè:', error);
+      }
+    };
+
+    fetchFriends();
+  }, [currentUserId]);
+
+  const handleSearch = () => {
+    const filtered = friends.filter((friend) =>
+      friend.fullName.toLowerCase().includes(searchText.toLowerCase())
     );
+    setFilteredFriends(filtered);
+  };
 
-    setSearchResults(filtered);
+  const goToUserOther = (userId: string) => {
+    navigation.navigate('UserOther', { userId });
   };
 
   return (
     <View style={styles.container}>
       <TextInput
-        style={styles.searchInput}
-        placeholder="Tìm kiếm bạn bè theo tên..."
+        placeholder="Tìm kiếm bạn bè"
         value={searchText}
         onChangeText={setSearchText}
+        style={styles.input}
       />
-      <TouchableOpacity style={styles.searchButton} onPress={searchUserDataByFullName}>
-        <Text style={styles.buttonText}>Tìm kiếm</Text>
+      <TouchableOpacity onPress={handleSearch} style={styles.button}>
+        <Text style={styles.buttonText}>Tìm</Text>
       </TouchableOpacity>
       <FlatList
-        data={searchResults}
+        data={filteredFriends}
         keyExtractor={(item) => item.id}
         renderItem={({ item }) => (
-<TouchableOpacity
-  style={styles.item}
-  onPress={() => navigation.navigate('UserOther', { userId: item.id })}  // CHỈ TRUYỀN item.id
->
-  <Image source={{ uri: item.avatarUri }} style={styles.avatar} />
-  <Text>{item.fullName}</Text>
-</TouchableOpacity>
-
+          <TouchableOpacity style={styles.item} onPress={() => goToUserOther(item.id)}>
+            <View style={styles.avatarContainer}>
+              <Image source={{ uri: item.avatarUri }} style={styles.avatar} />
+            </View>
+            <Text style={styles.fullName}>{item.fullName}</Text>
+          </TouchableOpacity>
         )}
       />
     </View>
@@ -56,10 +84,18 @@ const BanBeTab = () => {
 export default BanBeTab;
 
 const styles = StyleSheet.create({
-  container: { padding: 10 },
-  searchInput: { borderWidth: 1, padding: 8, borderRadius: 5 },
-  searchButton: { backgroundColor: 'blue', marginTop: 10, padding: 10 },
+  container: { flex: 1, padding: 10 },
+  input: { borderWidth: 1, padding: 8, borderRadius: 5 },
+  button: { backgroundColor: 'green', marginTop: 10, padding: 10 },
   buttonText: { color: 'white', textAlign: 'center' },
-  item: { flexDirection: 'row', alignItems: 'center', marginVertical: 10 },
-  avatar: { width: 40, height: 40, borderRadius: 20, marginRight: 10 },
+  item: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 10,
+    borderBottomWidth: 1,
+    borderBottomColor: '#ddd',
+  },
+  avatarContainer: { marginRight: 10 },
+  avatar: { width: 50, height: 50, borderRadius: 25 },
+  fullName: { fontSize: 16, fontWeight: 'bold' },
 });

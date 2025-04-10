@@ -16,7 +16,8 @@ import QuenMatKhau from './app/user/screens/QuenMatKhau';
 import VideoCall from './app/user/components/VideoCall';
 import TaskDetail from './app/user/screens/taskDetail';
 import ChatScreen from './app/user/screens/ChatScreen';
-
+import BanBeTab from './app/user/components/BanBeTab';
+import UserOther from './app/user/screens/UserOther';
 // admin
 import HomeAdmin from './app/admin/screens/HomeAdmin';
 import QlNhom from './app/admin/screens/QlNhom';
@@ -49,9 +50,9 @@ export default function App() {
         <Stack.Screen name="ChiTietPhong" component={ChiTietPhong} options={{ headerShown: false }} />
         <Stack.Screen name="MessageAllUser" component={MessageAllUserData} options={{ headerShown: false }} />
         <Stack.Screen name="ChatScreen" component={ChatScreen} options={{ headerShown: false }} />
-        <Stack.Screen name="UserOther" component={ChatScreen} options={{ headerShown: false }} />
+        <Stack.Screen name="UserOther" component={UserOther} />
         <Stack.Screen name="UserProfile" component={ChatScreen} options={{ headerShown: false }} />
-
+        <Stack.Screen name="BanBeTab" component={BanBeTab} />
         
         {/* Các màn hình của admin */}
         <Stack.Screen name="HomeAdmin" component={HomeAdmin} options={{ headerShown: false }} />

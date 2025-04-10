@@ -39,4 +39,9 @@ export type RootStackParamList = {
   MessageAllUser: { userId: string };
   ChatScreen: { senderId: string; receiverId: string };
   UserOther: { userId: string };
+  NhiemVu: undefined;
+  UserProfile: { userId: string };
+  BanBeTab: undefined;
+  TaskDetail: { taskId: string };
+
 };

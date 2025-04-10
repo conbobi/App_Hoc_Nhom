@@ -34,16 +34,18 @@ const UserFooter = () => {
         <Text style={styles.label}>Nhiệm Vụ</Text>
       </TouchableOpacity>
 
+      <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('DanhSachPhong', { UserData })}>
+        <Ionicons name="school" size={24} color="#000" />
+        <Text style={styles.label}>Phòng Học</Text>
+      </TouchableOpacity>
+
       <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('Notifications', { UserData: updatedUserData })}>
         <Ionicons name="notifications" size={24} color="#000" />
         <Text style={styles.label}>Thông Báo</Text>
       </TouchableOpacity>
 
      
-      <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('DanhSachPhong', { UserData })}>
-        <Ionicons name="school" size={24} color="#000" />
-        <Text style={styles.label}>Phòng Học</Text>
-      </TouchableOpacity>
+     
 
       <TouchableOpacity style={styles.button} onPress={() => {
         if (UserData && UserData.id) {
