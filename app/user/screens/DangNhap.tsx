@@ -25,14 +25,14 @@ export default function DangNhap() {
       Alert.alert('Lỗi', 'Vui lòng nhập email và mật khẩu.');
       return;
     }
-
+  
     try {
       const userCredential = await firebase.auth().signInWithEmailAndPassword(email, password);
       const user = userCredential.user;
-
+  
       const userDoc = await firebase.firestore().collection('users').doc(user?.uid).get();
       const UserData = userDoc.data();
-
+  
       if (UserData) {
         Alert.alert('Thành công', 'Đăng nhập thành công!');
         if (user?.uid) {
@@ -44,7 +44,6 @@ export default function DangNhap() {
                 id: user.uid,
                 fullName: UserData.fullName,
                 email: UserData.email,
-                password: UserData.password,
                 role: UserData.role,
                 avatarUri: UserData.avatarUri || '',
               },
@@ -62,10 +61,10 @@ export default function DangNhap() {
           Alert.alert('Lỗi', 'Email không hợp lệ.');
           break;
         case 'auth/user-not-found':
-          Alert.alert('Lỗi', 'Tài khoản không tồn tại.');
+          Alert.alert('Lỗi', 'Email không đúng hoặc tài khoản không tồn tại.');
           break;
         case 'auth/wrong-password':
-          Alert.alert('Lỗi', 'Sai mật khẩu. Vui lòng thử lại.');
+          Alert.alert('Lỗi', 'Mật khẩu không đúng. Vui lòng thử lại.');
           break;
         default:
           Alert.alert('Lỗi', 'Đăng nhập thất bại do sự cố. Vui lòng thử lại sau.');
@@ -73,6 +72,8 @@ export default function DangNhap() {
       }
     }
   };
+  
+   
 
   return (
     <View style={styles.container}>

@@ -1,5 +1,7 @@
 import { StyleSheet } from 'react-native';
+import { Dimensions } from 'react-native';
 
+const screenWidth = Dimensions.get('window').width;
 const styles = StyleSheet.create({
   menuButton: {
     position: 'absolute',
@@ -20,27 +22,7 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#f5f5f5',
   },
-  avatarContainer: {
-    justifyContent: 'center',
-    alignItems: 'center',
-    position: 'relative',
-  },
-  avatar: {
-    width: 100,
-    height: 100,
-    borderRadius: 50,
-    borderWidth: 2,
-    borderColor: '#fff',
-  },
-  cameraIcon: {
-    position: 'absolute',
-    bottom: 0,
-  alignContent: 'center',
-    backgroundColor: '#000',
-    padding: 5,
-    borderRadius: 20,
-    
-  },
+ 
   infoContainer: {
     marginBottom: 20,
   },
@@ -96,37 +78,102 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: '#666',
   },
+
+  // Thay đổi màu sắc của phần background avartar
+  avatarContainer: {
+    position: 'relative',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 20,
+  },
+  avatar: {
+    width: 100,
+    height: 100,
+    borderRadius: 50,
+    borderWidth: 2,
+    borderColor: '#0f0', // green glow border
+    shadowColor: '#0f0',
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.7,
+    shadowRadius: 10,
+  },
+  cameraIcon: {
+    position: 'absolute',
+    bottom: 0,
+    right: 0,
+    backgroundColor: '#0f0',
+    borderRadius: 15,
+    padding: 5,
+    borderWidth: 1,
+    borderColor: '#1c1c1e',
+    shadowColor: '#0f0',
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.9,
+    shadowRadius: 8,
+    
+  },
+  background:{
+    borderRadius: 20,
+  padding: 20,
+  backgroundColor: '#1c1c1e', // dark mode base
+  width: '100%',
+  height: '30%',
+  justifyContent: 'center',
+  alignItems: 'center',
+  overflow: 'hidden', // 🔥 CHÍNH CHỖ NÀY GIÚP CHẶN TRÀN
+  position: 'relative',
+    },
+
   buttonRow: {
     flexDirection: 'row',
-    justifyContent: 'space-around',
-    marginTop: 20,
+  justifyContent: 'space-between',
+  width: screenWidth * 0.8, // 90% chiều rộng của màn hình
+  marginTop: 10,
+  alignSelf: 'center' // giúp canh giữa cho an toàn
   },
   editButton: {
-    backgroundColor: '#f06292',
-    paddingVertical: 8,
-    paddingHorizontal: 15,
-    borderRadius: 5,
+    backgroundColor: '#6a1b9a',
+    paddingVertical: 10,
+    paddingHorizontal: 16,
+    borderRadius: 30,
     marginHorizontal: 5,
+    shadowColor: '#ba68c8',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.5,
+    shadowRadius: 6,
   },
   changePasswordButton: {
-    backgroundColor: '#ba68c8',
-    paddingVertical: 8,
-    paddingHorizontal: 15,
-    borderRadius: 5,
-    marginHorizontal: 5,
+    backgroundColor: '#283593',
+  paddingVertical: 10,
+  paddingHorizontal: 16,
+  borderRadius: 30,
+  marginHorizontal: 5,
+  shadowColor: '#7986cb',
+  shadowOffset: { width: 0, height: 2 },
+  shadowOpacity: 0.5,
+  shadowRadius: 6,
   },
   signOutButton: {
-    backgroundColor: '#ff8a65',
-    paddingVertical: 8,
-    paddingHorizontal: 15,
-    borderRadius: 5,
+    backgroundColor: '#b71c1c',
+    paddingVertical: 10,
+    paddingHorizontal: 16,
+    borderRadius: 30,
     marginHorizontal: 5,
+    shadowColor: '#ef5350',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.5,
+    shadowRadius: 6,
   },
   buttonText: {
     color: '#fff',
-    fontWeight: 'bold',
+    fontWeight: '600',
+    fontSize: 14,
     textAlign: 'center',
-  }
+  },
+
+
+  // pass
+ 
 });
 
 export default styles;

@@ -25,7 +25,7 @@ export type RootStackParamList = {
   AdminAcc: undefined;
   HomeAdmin: undefined;
   // user
-  Home: { UserData: { id: string; fullName: string; email: string; password: string; role: string; avatarUri?: string  } };
+  Home: { UserData: { id: string; fullName: string; email: string; role: string; avatarUri?: string  } };
   Notifications: { UserData: { id: string; fullName: string; email: string; password: string; role: string; avatarUri?: string  } };
   DanhSachPhong: { UserData: { id: number; fullName: string; email: string; password: string; role: string; avatarUri?: string  } };
   UserFooter: { UserData: { id: number; fullName: string; email: string; password: string; role: string; avatarUri?: string  } };
@@ -43,5 +43,8 @@ export type RootStackParamList = {
   UserProfile: { userId: string };
   BanBeTab: undefined;
   TaskDetail: { taskId: string };
+  ResetPassword: { userId: string }; // Thêm màn hình ResetPassword
+  EditProfile: { userId: string; fullName: string; avatarUri: string };
+
 
 };

@@ -18,6 +18,9 @@ import TaskDetail from './app/user/screens/taskDetail';
 import ChatScreen from './app/user/screens/ChatScreen';
 import BanBeTab from './app/user/components/BanBeTab';
 import UserOther from './app/user/screens/UserOther';
+import ResetPassword from './app/user/screens/ResetPassword';
+import EditProfile from './app/user/screens/EditProfile';
+
 // admin
 import HomeAdmin from './app/admin/screens/HomeAdmin';
 import QlNhom from './app/admin/screens/QlNhom';
@@ -28,6 +31,9 @@ import EditGroup from './app/admin/screens/EditGroup';
 import MessageAllUserData from './app/user/screens/MessageAllUser';
 import ChiTietPhong from './app/user/screens/ChiTietPhong';
 import { RootStackParamList } from './app/user/screens/types/RootStackParamList';
+
+
+
 
 const Stack = createStackNavigator<RootStackParamList>();
 
@@ -53,6 +59,10 @@ export default function App() {
         <Stack.Screen name="UserOther" component={UserOther} />
         <Stack.Screen name="UserProfile" component={ChatScreen} options={{ headerShown: false }} />
         <Stack.Screen name="BanBeTab" component={BanBeTab} />
+        <Stack.Screen name="ResetPassword" component={ResetPassword} />
+        <Stack.Screen name="EditProfile" component={EditProfile} />
+        
+        
         
         {/* Các màn hình của admin */}
         <Stack.Screen name="HomeAdmin" component={HomeAdmin} options={{ headerShown: false }} />

@@ -10,6 +10,7 @@ import {
   Dimensions,
   TouchableOpacity,
   Alert,
+  
 } from 'react-native';
 // @ts-ignore
 import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
@@ -23,7 +24,15 @@ import 'firebase/compat/auth';
 import 'firebase/compat/firestore';
 import * as ImagePicker from 'expo-image-picker';
 import * as ImageManipulator from 'expo-image-manipulator';
+// hiệu ứng
 import { Ionicons } from '@expo/vector-icons';
+
+import { useEffect, useRef } from 'react';
+import { Animated } from 'react-native';
+type MatrixColumnProps = {
+  left: number;
+};
+
 
 const screenWidth = Dimensions.get('window').width;
 
@@ -154,12 +163,86 @@ export default function Profile() {
     }
   };
 
+  // hiệu ứng cho bg user
+  const MatrixColumn: React.FC<MatrixColumnProps> = ({ left }) => {
+    const fallAnim = useRef(new Animated.Value(0)).current;
+    const screenHeight = Dimensions.get('window').height;
+  
+    // Generate random binary string
+    const binaryString = Array.from({ length: 20 }, () =>
+      Math.round(Math.random()).toString()
+    ).join('\n');
+  
+    useEffect(() => {
+      const loopAnimation = () => {
+        fallAnim.setValue(0);
+        Animated.timing(fallAnim, {
+          toValue: 1,
+          duration: 4000 + Math.random() * 2000, // random speed
+          useNativeDriver: true,
+        }).start(() => loopAnimation());
+      };
+      loopAnimation();
+    }, []);
+  
+    const translateY = fallAnim.interpolate({
+      inputRange: [0, 1],
+      outputRange: [-screenHeight, screenHeight],
+    });
+  
+    return (
+      <Animated.Text
+        style={{
+          position: 'absolute',
+          left,
+          color: 'lime',
+          fontSize: 16,
+          fontFamily: 'monospace',
+          transform: [{ translateY }],
+          opacity: 0.6,
+        }}
+      >
+        {binaryString}
+      </Animated.Text>
+    );
+  };
+
+  const MatrixRain = () => {
+    const screenWidth = Dimensions.get('window').width;
+    const columns = [];
+  
+    for (let i = 0; i < screenWidth; i += 20) {
+      columns.push(<MatrixColumn key={i} left={i} />);
+    }
+  
+    return (
+      <View style={{
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0, // fill cha, nhưng không vượt nếu cha có overflow: 'hidden'
+        zIndex: -1, // để nó nằm dưới avatar
+      }}>
+        {columns}
+      </View>
+    );
+  };
+
+
   return (
+    
     <View style={{ flex: 1 }}>
       <SafeAreaView style={styles.container}>
         <ScrollView>
+          {/* bg user*/}
+
           {/* Avatar Section */}
-          <View style={{ borderRadius: 50, backgroundColor: "#9932CC", width: 410, height: 200 }}>
+          <View style={styles.background}>
+            
+             {/* Matrix Code Rain */}
+            <MatrixRain />
+            
             <View style={styles.avatarContainer}>
               <Image
                 source={{ uri: avatarUri || '' }} // Placeholder avatar
@@ -169,20 +252,32 @@ export default function Profile() {
                 <Ionicons name="camera" size={16} color="#fff" />
               </TouchableOpacity>
             </View>
+
             <View style={styles.buttonRow}>
-              <TouchableOpacity style={styles.editButton} onPress={() => alert('Edit Profile clicked!')}>
-                <Text style={styles.buttonText}>Edit Profile</Text>
+              <TouchableOpacity style={styles.editButton} onPress={() => navigation.navigate('EditProfile',
+                 { userId: UserData.id, 
+                 fullName: UserData.fullName,
+                  avatarUri })}>
+                <Text style={styles.buttonText}>detail Profile</Text>
               </TouchableOpacity>
 
-              <TouchableOpacity style={styles.changePasswordButton} onPress={() => alert('Change Password clicked!')}>
-                <Text style={styles.buttonText}>Change Password</Text>
+              <TouchableOpacity
+                style={styles.changePasswordButton}
+                onPress={() => navigation.navigate('ResetPassword', { userId: UserData.id })}
+              >
+                <Text style={styles.buttonText}>Reset password</Text>
               </TouchableOpacity>
 
               <TouchableOpacity style={styles.signOutButton} onPress={handleSignOut}>
                 <Text style={styles.buttonText}>Sign Out</Text>
               </TouchableOpacity>
+              
             </View>
+          
           </View>
+      
+
+          {/* Chart Section */}
           {/* User Info Section */}
           <View style={styles.infoContainer}>
             <Text style={styles.label}>ID Người Dùng:</Text>
@@ -212,6 +307,7 @@ export default function Profile() {
               value={UserData.password || '********'}
               editable={false}
               secureTextEntry
+              
             />
 
             <Text style={styles.label}>Vai Trò:</Text>

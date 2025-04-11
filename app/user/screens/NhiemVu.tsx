@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState} from 'react';
 import {
   View,
   Text,
@@ -30,11 +30,33 @@ import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../screens/types/RootStackParamList'; // Đường dẫn đến file kiểu dữ liệu
 import Subtask from './types/subtask'; // Thêm dòng này
 import TaskDetail from "../screens/taskDetail"; // Import màn hình TaskDetail
+import dayjs from 'dayjs';
+
+// bỏ qua lỗi text View
+import { LogBox } from 'react-native';
+import { useEffect } from 'react';
+
+
+
+
+
+
 
 const db = firebase.firestore();
 const Stack = createNativeStackNavigator();
 const NhiemVu = () => {
 
+  useEffect(() => {
+    // Khi vào màn hình, tắt warning cụ thể
+    LogBox.ignoreLogs([
+      'Text strings must be rendered within a <Text> component',
+    ]);
+  
+    return () => {
+      // Khi rời khỏi màn hình, khôi phục lại
+      LogBox.ignoreAllLogs(false); // Hoặc gọi LogBox.ignoreLogs([]) để clear
+    };
+  }, []);
   
 
 
@@ -50,7 +72,7 @@ const NhiemVu = () => {
   
   const handleConfirm = (date: Date) => {
     // Xử lý khi chọn ngày
-    const formattedDate = date.toISOString().split("T")[0]; // Định dạng ngày (YYYY-MM-DD)
+    const formattedDate = dayjs(date).format('DD/MM/YYYY'); // Định dạng ngày (YYYY-MM-DD)
     setNewTask({ ...newTask, deadline: formattedDate });
     
     hideDatePicker();
