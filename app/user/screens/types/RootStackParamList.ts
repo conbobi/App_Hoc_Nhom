@@ -35,7 +35,7 @@ export type RootStackParamList = {
   DangKy: undefined;
   DangNhap: { UserData?: { id?: number; fullName?: string; email?: string; password?: string; role?: string } };
   QuenMatKhau: undefined;
-  VideoCall: undefined;
+  VideoCall:{roomId:string};
   MessageAllUser: { userId: string };
   ChatScreen: { senderId: string; receiverId: string };
   UserOther: { userId: string };

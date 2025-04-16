@@ -145,7 +145,7 @@ export default function PhongHoc({ route }: PhongHocProps) {
   return (
     <View style={styles.container}>
       {/* Nút Call ở góc phải */}
-      <TouchableOpacity style={styles.callButton} onPress={() => navigation.navigate("VideoCall" as never)}>
+      <TouchableOpacity style={styles.callButton} onPress={() => navigation.navigate("VideoCall" ,{roomId})}>
         <Text style={styles.callButtonText}>📞 Call</Text>
       </TouchableOpacity>
       <Button 
