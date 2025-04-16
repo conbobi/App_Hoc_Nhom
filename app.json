@@ -21,7 +21,8 @@
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#ffffff"
-      }
+      },
+      "package": "com.tienzed2003.App_Hoc_Nhom"
     },
     "web": {
       "bundler": "metro",
